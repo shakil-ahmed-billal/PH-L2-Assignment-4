@@ -1,10 +1,10 @@
 model ProviderProfile {
     id          String  @id @default(uuid())
     userId      String  @unique
-    restaurant  String
+    restaurant  String?
     description String?
-    address     String
-    phone       String
+    address     String?
+    phone       String?
 
     user  User   @relation(fields: [userId], references: [id])
     meals Meal[]

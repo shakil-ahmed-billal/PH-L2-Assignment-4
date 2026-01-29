@@ -21,10 +21,11 @@ import { toast } from "sonner";
 import * as z from "zod";
 import { Eye, EyeOff, User, Mail, Phone, Lock, Store } from "lucide-react";
 import { useState } from "react";
+import { useAuth } from "@/hooks/useAuth";
 
 const formSchema = z.object({
   userType: z.enum(["customer", "provider"], {
-    required_error: "Please select a user type",
+    message: "Please select a user type",
   }),
   name: z.string().min(1, "This field is required"),
   email: z.string().email("Invalid email address"),
@@ -39,6 +40,7 @@ const formSchema = z.object({
 export function RegisterForm({ ...props }: React.ComponentProps<typeof Card>) {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const { signUp } = useAuth();
 
   const form = useForm({
     defaultValues: {
@@ -56,10 +58,11 @@ export function RegisterForm({ ...props }: React.ComponentProps<typeof Card>) {
       const toastId = toast.loading("Creating user");
       try {
         console.log(value);
-        const { data, error } = await authClient.signUp.email({
+        const { data, error } = await signUp({
           name: value.name,
           email: value.email,
           password: value.password,
+          role: value.userType.toUpperCase(),
         });
 
         console.log(data);

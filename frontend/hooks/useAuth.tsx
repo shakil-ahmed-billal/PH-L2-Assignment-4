@@ -7,6 +7,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   return <>{children}</>;
 }
 
+interface SignUpData {
+  name: string;
+  email: string;
+  password: string;
+  role?: string; // Add 'role' if required
+}
+
 export function useAuth() {
   const [user, setUser] = useState<any>(null);
   const [session, setSession] = useState<any>(null);
@@ -31,25 +38,38 @@ export function useAuth() {
     fetchSession();
   }, []);
 
-  const signUp = async (email: string, password: string) => {
+  const signUp = async (data: SignUpData) => {
+    console.log(data);
     try {
-      const result = await authClient.signUp.email({
-        email,
-        password,
-        name: email.split("@")[0], // Use email prefix as default name
-      });
-
+      const result = await authClient.signUp.email(data);
       if (result.error) {
         return { error: result.error };
       }
-
-      // Refresh session after sign up
+      if (data.role == "PROVIDER") {
+       
+      }
+     if(data.role === "PROVIDER"){
+        const createProvider = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/auth/register`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              name: data.name,
+              email: data.email,
+              role: data.role,
+            }),
+          },
+        );
+        console.log(createProvider);
+     }
       const sessionResult = await authClient.getSession();
       if (sessionResult.data) {
         setSession(sessionResult.data);
         setUser(sessionResult.data.user || null);
       }
-      
       return { data: result.data, error: null };
     } catch (error: any) {
       return {
@@ -67,7 +87,7 @@ export function useAuth() {
         password,
       });
 
-      console.log(result)
+      console.log(result);
 
       if (result.error) {
         return { error: result.error };
@@ -101,7 +121,7 @@ export function useAuth() {
     }
   };
 
-   const handleGoogleLogin = async () => {
+  const handleGoogleLogin = async () => {
     const data = authClient.signIn.social({
       provider: "google",
       callbackURL: "http://localhost:3000",
@@ -117,6 +137,6 @@ export function useAuth() {
     signUp,
     signIn,
     signOut,
-    handleGoogleLogin
+    handleGoogleLogin,
   };
 }

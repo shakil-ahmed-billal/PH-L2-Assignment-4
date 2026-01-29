@@ -6,12 +6,15 @@ model User {
   image         String?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
+  role          String?   @default("USER")
+  phone         String?
+  status        String?   @default("ACTIVE")
   sessions      Session[]
   accounts      Account[]
 
   providerProfile ProviderProfile?
-  orders           Order[]
-  reviews          Review[]
+  orders          Order[]
+  reviews         Review[]
 
   @@unique([email])
   @@map("user")
@@ -63,4 +66,15 @@ model Verification {
 
   @@index([identifier])
   @@map("verification")
+}
+
+enum Role {
+  CUSTOMER
+  PROVIDER
+  ADMIN
+}
+
+enum UserStatus {
+  ACTIVE
+  SUSPENDED
 }

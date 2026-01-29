@@ -1,9 +1,9 @@
+import { auth } from './../lib/auth';
 import express, { Application } from "express";
 import { toNodeHandler } from "better-auth/node";
 import morgan from 'morgan';
 import cors from 'cors';
 import dotenv from 'dotenv'
-import auth from '../lib/auth'
 import router from "./router";
 import envConfig from "./config/envConfig";
 dotenv.config();
