@@ -1,0 +1,35 @@
+model Order {
+  id              String      @id @default(uuid())
+  customerId      String
+  providerId      String
+  totalPrice      Float
+  deliveryAddress String
+  status          OrderStatus @default(PLACED)
+
+  customer User @relation(fields: [customerId], references: [id])
+  provider ProviderProfile @relation(fields: [providerId], references: [id])
+
+  items OrderItem[]
+
+  createdAt DateTime @default(now())
+}
+
+model OrderItem {
+  id       String @id @default(uuid())
+  orderId  String
+  mealId   String
+  quantity Int
+  price    Float
+
+  order Order @relation(fields: [orderId], references: [id])
+  meal  Meal  @relation(fields: [mealId], references: [id])
+}
+
+
+enum OrderStatus {
+  PLACED
+  PREPARING
+  READY
+  DELIVERED
+  CANCELLED
+}

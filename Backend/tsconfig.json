@@ -8,6 +8,7 @@
     // See also https://aka.ms/tsconfig/module
     "module": "ESNext",
     "moduleResolution": "node",
+    // "moduleResolution": "bundler",
     "target": "ES2023",
     "types": ["node"],
     "lib": ["ES2023"],
