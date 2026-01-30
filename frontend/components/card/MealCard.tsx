@@ -107,7 +107,7 @@ const MealCard = ({ meal, className, ...props }: MealCardProps) => {
           <div className="flex items-center gap-2">
             {meal.originalPrice && (
               <span className="text-sm text-muted-foreground line-through">
-                ${meal.originalPrice.toFixed(2)}
+                ${meal.originalPrice}
               </span>
             )}
             <span className="font-bold text-primary text-lg">

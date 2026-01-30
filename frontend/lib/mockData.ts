@@ -1,5 +1,7 @@
 // FoodHub Mock Data
 
+import { useData } from "@/hooks/useData";
+
 export interface Category {
   id: string;
   name: string;
@@ -63,6 +65,7 @@ export interface CartItem {
   meal: Meal;
   quantity: number;
 }
+
 
 // Categories
 export const categories: Category[] = [

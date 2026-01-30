@@ -3,11 +3,11 @@ model Meal {
   name          String
   description   String?
   price         Float
-  originalPrice Float
+  originalPrice Decimal @default(0)
   image         String?
   available     Boolean    @default(true)
   slug          String
-  calories      Int?
+  calories      Float?
   prepTime      String?
   isVegetarian  Boolean    @default(false)
   isSpicy       Boolean    @default(false)

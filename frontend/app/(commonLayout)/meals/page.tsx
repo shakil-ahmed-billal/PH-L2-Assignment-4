@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Search, Filter, X, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -22,15 +22,187 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { Badge } from "@/components/ui/badge";
-import { categories , Meal, meals, searchMeals } from "@/lib/mockData";
 import MealCard from "@/components/card/MealCard";
+import { useData } from "@/hooks/useData";
 
 type SortOption = "popular" | "price-low" | "price-high" | "rating";
+
+// Prisma schema types
+interface Meal {
+  id: string;
+  name: string;
+  description: string | null;
+  price: number;
+  originalPrice: number;
+  image: string | null;
+  available: boolean;
+  slug: string;
+  calories: number | null;
+  prepTime: string | null;
+  isVegetarian: boolean;
+  isSpicy: boolean;
+  isPopular: boolean;
+  ingredients: string[];
+  providerId: string;
+  categoryId: string;
+  createdAt: Date;
+  rating?: number; // Optional if you calculate it from reviews
+}
+
+interface Category {
+  id: string;
+  name: string;
+  slug: string;
+  icon: string;
+  image: string;
+  mealCount: number;
+  createdAt: Date;
+}
+
+// FilterContent component - render er baire declare korchi
+const FilterContent = ({
+  categories,
+  selectedCategories,
+  toggleCategory,
+  getCategoryMealCount,
+  showVegetarian,
+  setShowVegetarian,
+  showSpicy,
+  setShowSpicy,
+  hasActiveFilters,
+  clearFilters,
+}: {
+  categories: Category[];
+  selectedCategories: string[];
+  toggleCategory: (categoryId: string) => void;
+  getCategoryMealCount: (categoryId: string) => number;
+  showVegetarian: boolean;
+  setShowVegetarian: (value: boolean) => void;
+  showSpicy: boolean;
+  setShowSpicy: (value: boolean) => void;
+  hasActiveFilters: boolean;
+  clearFilters: () => void;
+}) => (
+  <div className="space-y-6">
+    {/* Categories */}
+    <div className="space-y-3">
+      <h3 className="font-semibold text-foreground flex items-center gap-2">
+        <span className="text-lg">🍽️</span>
+        Categories
+      </h3>
+      <div className="space-y-2.5">
+        {categories && categories.length > 0 ? (
+          categories.map((cat) => (
+            <div
+              key={cat.id}
+              className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-accent/30 transition-all duration-200 cursor-pointer group border border-transparent hover:border-primary/20"
+              onClick={() => toggleCategory(cat.id)}
+            >
+              <Checkbox
+                id={`category-${cat.id}`}
+                checked={selectedCategories.includes(cat.id)}
+                onCheckedChange={() => toggleCategory(cat.id)}
+                className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+              />
+              <Label
+                htmlFor={`category-${cat.id}`}
+                className="flex items-center gap-2.5 cursor-pointer flex-1"
+              >
+                <span className="text-xl">{cat.icon || "🍴"}</span>
+                <span className="font-medium text-sm group-hover:text-primary transition-colors">
+                  {cat.name}
+                </span>
+                <Badge
+                  variant="secondary"
+                  className="ml-auto text-xs font-normal bg-accent/50"
+                >
+                  {getCategoryMealCount(cat.id)}
+                </Badge>
+              </Label>
+            </div>
+          ))
+        ) : (
+          <p className="text-sm text-muted-foreground">No categories available</p>
+        )}
+      </div>
+    </div>
+
+    {/* Dietary Preferences */}
+    <div className="space-y-3 pt-4 border-t border-border/50">
+      <h3 className="font-semibold text-foreground flex items-center gap-2">
+        <span className="text-lg">🥗</span>
+        Dietary Preferences
+      </h3>
+      <div className="space-y-2.5">
+        <div
+          className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-accent/30 transition-all duration-200 cursor-pointer group border border-transparent hover:border-primary/20"
+          onClick={() => setShowVegetarian(!showVegetarian)}
+        >
+          <Checkbox
+            id="vegetarian"
+            checked={showVegetarian}
+            onCheckedChange={(checked) => setShowVegetarian(checked === true)}
+            className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+          />
+          <Label
+            htmlFor="vegetarian"
+            className="cursor-pointer flex items-center gap-2.5 flex-1"
+          >
+            <span className="text-xl">🌱</span>
+            <span className="font-medium text-sm group-hover:text-primary transition-colors">
+              Vegetarian
+            </span>
+          </Label>
+        </div>
+        <div
+          className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-accent/30 transition-all duration-200 cursor-pointer group border border-transparent hover:border-primary/20"
+          onClick={() => setShowSpicy(!showSpicy)}
+        >
+          <Checkbox
+            id="spicy"
+            checked={showSpicy}
+            onCheckedChange={(checked) => setShowSpicy(checked === true)}
+            className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+          />
+          <Label
+            htmlFor="spicy"
+            className="cursor-pointer flex items-center gap-2.5 flex-1"
+          >
+            <span className="text-xl">🌶️</span>
+            <span className="font-medium text-sm group-hover:text-primary transition-colors">
+              Spicy
+            </span>
+          </Label>
+        </div>
+      </div>
+    </div>
+
+    {/* Clear Filters */}
+    {hasActiveFilters && (
+      <div className="pt-4">
+        <Button
+          variant="outline"
+          onClick={clearFilters}
+          className="w-full border-destructive/50 text-destructive hover:bg-destructive hover:text-destructive-foreground transition-all duration-200"
+        >
+          <X className="h-4 w-4 mr-2" />
+          Clear All Filters
+        </Button>
+      </div>
+    )}
+  </div>
+);
 
 export default function MealsPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const categoryParam = searchParams.get("category");
+
+  // Backend data theke data newa - type assertion kore nilam
+  const { category: categories = [], meal: meals = [] } = useData()as{
+    category: Category[];
+    meal: Meal[];
+  };
 
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategories, setSelectedCategories] = useState<string[]>(
@@ -42,7 +214,23 @@ export default function MealsPage() {
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 50]);
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
 
+  // Search function - useCallback use kore memoize korchi
+  const searchMeals = useCallback(
+    (query: string): Meal[] => {
+      const lowerQuery = query.toLowerCase();
+      return meals.filter(
+        (meal) =>
+          meal.name?.toLowerCase().includes(lowerQuery) ||
+          meal.description?.toLowerCase().includes(lowerQuery) ||
+          meal.slug?.toLowerCase().includes(lowerQuery)
+      );
+    },
+    [meals]
+  );
+
   const filteredMeals = useMemo(() => {
+    if (!meals || meals.length === 0) return [];
+
     let result: Meal[] = searchQuery ? searchMeals(searchQuery) : [...meals];
 
     // Category filter
@@ -76,7 +264,7 @@ export default function MealsPage() {
         result.sort((a, b) => b.price - a.price);
         break;
       case "rating":
-        result.sort((a, b) => b.rating - a.rating);
+        result.sort((a, b) => (b.rating || 0) - (a.rating || 0));
         break;
       case "popular":
       default:
@@ -85,23 +273,25 @@ export default function MealsPage() {
 
     return result;
   }, [
+    meals,
     searchQuery,
     selectedCategories,
     sortBy,
     showVegetarian,
     showSpicy,
     priceRange,
+    searchMeals,
   ]);
 
-  const toggleCategory = (categoryId: string) => {
+  const toggleCategory = useCallback((categoryId: string) => {
     setSelectedCategories((prev) =>
       prev.includes(categoryId)
         ? prev.filter((id) => id !== categoryId)
         : [...prev, categoryId]
     );
-  };
+  }, []);
 
-  const clearFilters = () => {
+  const clearFilters = useCallback(() => {
     setSearchQuery("");
     setSelectedCategories([]);
     setSortBy("popular");
@@ -109,7 +299,7 @@ export default function MealsPage() {
     setShowSpicy(false);
     setPriceRange([0, 50]);
     router.push("/meals");
-  };
+  }, [router]);
 
   const hasActiveFilters =
     searchQuery ||
@@ -124,111 +314,12 @@ export default function MealsPage() {
     (showSpicy ? 1 : 0) +
     (sortBy !== "popular" ? 1 : 0);
 
-  const FilterContent = () => (
-    <div className="space-y-6">
-      {/* Categories */}
-      <div className="space-y-3">
-        <h3 className="font-semibold text-foreground flex items-center gap-2">
-          <span className="text-lg">🍽️</span>
-          Categories
-        </h3>
-        <div className="space-y-2.5">
-          {categories.map((category) => (
-            <div
-              key={category.id}
-              className="flex items-center gap-3 p-2 rounded-lg hover:bg-accent/50 transition-colors cursor-pointer group"
-              onClick={() => toggleCategory(category.id)}
-            >
-              <Checkbox
-                id={`category-${category.id}`}
-                checked={selectedCategories.includes(category.id)}
-                onCheckedChange={() => toggleCategory(category.id)}
-                className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
-              />
-              <Label
-                htmlFor={`category-${category.id}`}
-                className="flex items-center gap-2 cursor-pointer flex-1"
-              >
-                <span className="text-xl">{category.icon}</span>
-                <span className="font-medium text-sm group-hover:text-primary transition-colors">
-                  {category.name}
-                </span>
-                <Badge
-                  variant="secondary"
-                  className="ml-auto text-xs font-normal"
-                >
-                  {category.mealCount}
-                </Badge>
-              </Label>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Dietary Preferences */}
-      <div className="space-y-3 pt-4 border-t border-border">
-        <h3 className="font-semibold text-foreground flex items-center gap-2">
-          <span className="text-lg">🥗</span>
-          Dietary Preferences
-        </h3>
-        <div className="space-y-2.5">
-          <div
-            className="flex items-center gap-3 p-2 rounded-lg hover:bg-accent/50 transition-colors cursor-pointer group"
-            onClick={() => setShowVegetarian(!showVegetarian)}
-          >
-            <Checkbox
-              id="vegetarian"
-              checked={showVegetarian}
-              onCheckedChange={(checked) => setShowVegetarian(checked === true)}
-              className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
-            />
-            <Label
-              htmlFor="vegetarian"
-              className="cursor-pointer flex items-center gap-2 flex-1"
-            >
-              <span className="text-xl">🌱</span>
-              <span className="font-medium text-sm group-hover:text-primary transition-colors">
-                Vegetarian
-              </span>
-            </Label>
-          </div>
-          <div
-            className="flex items-center gap-3 p-2 rounded-lg hover:bg-accent/50 transition-colors cursor-pointer group"
-            onClick={() => setShowSpicy(!showSpicy)}
-          >
-            <Checkbox
-              id="spicy"
-              checked={showSpicy}
-              onCheckedChange={(checked) => setShowSpicy(checked === true)}
-              className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
-            />
-            <Label
-              htmlFor="spicy"
-              className="cursor-pointer flex items-center gap-2 flex-1"
-            >
-              <span className="text-xl">🌶️</span>
-              <span className="font-medium text-sm group-hover:text-primary transition-colors">
-                Spicy
-              </span>
-            </Label>
-          </div>
-        </div>
-      </div>
-
-      {/* Clear Filters */}
-      {hasActiveFilters && (
-        <div className="pt-4">
-          <Button
-            variant="outline"
-            onClick={clearFilters}
-            className="w-full border-destructive/50 text-destructive hover:bg-destructive hover:text-destructive-foreground transition-all"
-          >
-            <X className="h-4 w-4 mr-2" />
-            Clear All Filters
-          </Button>
-        </div>
-      )}
-    </div>
+  // Category er meal count calculate kora
+  const getCategoryMealCount = useCallback(
+    (categoryId: string): number => {
+      return meals?.filter((meal) => meal.categoryId === categoryId).length || 0;
+    },
+    [meals]
   );
 
   return (
@@ -237,14 +328,14 @@ export default function MealsPage() {
         {/* Header Section */}
         <div className="mb-8 space-y-4">
           <div className="flex items-center gap-3">
-            <div className="h-12 w-1 bg-primary rounded-full" />
+            <div className="h-12 w-1.5 bg-gradient-to-b from-primary to-accent rounded-full shadow-lg shadow-primary/20" />
             <div>
-              <h1 className="text-3xl sm:text-4xl font-bold text-foreground tracking-tight">
+              <h1 className="text-3xl sm:text-4xl font-bold text-foreground tracking-tight bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text">
                 Browse Meals
               </h1>
               <p className="text-muted-foreground mt-1 flex items-center gap-2">
-                <Sparkles className="h-4 w-4 text-primary" />
-                <span className="font-medium text-primary">
+                <Sparkles className="h-4 w-4 text-primary animate-pulse" />
+                <span className="font-semibold text-primary">
                   {filteredMeals.length}
                 </span>{" "}
                 delicious options available
@@ -263,7 +354,7 @@ export default function MealsPage() {
                 placeholder="Search meals, restaurants, cuisines..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-12 pr-4 h-12 bg-background border-border focus:border-primary transition-colors"
+                className="pl-12 pr-4 h-12 bg-card border-border focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-200 rounded-xl"
               />
               {searchQuery && (
                 <button
@@ -280,7 +371,7 @@ export default function MealsPage() {
               value={sortBy}
               onValueChange={(value) => setSortBy(value as SortOption)}
             >
-              <SelectTrigger className="w-full sm:w-[200px] h-12 bg-background border-border">
+              <SelectTrigger className="w-full sm:w-[200px] h-12 bg-card border-border rounded-xl">
                 <SelectValue placeholder="Sort by" />
               </SelectTrigger>
               <SelectContent>
@@ -319,7 +410,7 @@ export default function MealsPage() {
               <SheetTrigger asChild>
                 <Button
                   variant="outline"
-                  className="lg:hidden h-12 relative border-border"
+                  className="lg:hidden h-12 relative border-border rounded-xl hover:bg-accent/50 transition-all duration-200"
                 >
                   <Filter className="h-5 w-5 mr-2" />
                   Filters
@@ -340,7 +431,18 @@ export default function MealsPage() {
                     Filters
                   </SheetTitle>
                 </SheetHeader>
-                <FilterContent />
+                <FilterContent
+                  categories={categories}
+                  selectedCategories={selectedCategories}
+                  toggleCategory={toggleCategory}
+                  getCategoryMealCount={getCategoryMealCount}
+                  showVegetarian={showVegetarian}
+                  setShowVegetarian={setShowVegetarian}
+                  showSpicy={showSpicy}
+                  setShowSpicy={setShowSpicy}
+                  hasActiveFilters={hasActiveFilters}
+                  clearFilters={clearFilters}
+                />
               </SheetContent>
             </Sheet>
           </div>
@@ -352,15 +454,15 @@ export default function MealsPage() {
                 Active filters:
               </span>
               {selectedCategories.map((catId) => {
-                const cat = categories.find((c) => c.id === catId);
+                const cat = categories?.find((c) => c.id === catId);
                 return cat ? (
                   <Badge
                     key={catId}
                     variant="secondary"
-                    className="gap-1.5 pl-2 pr-1 py-1 cursor-pointer hover:bg-secondary/80 transition-colors"
+                    className="gap-1.5 pl-2.5 pr-1.5 py-1.5 cursor-pointer hover:bg-primary/10 hover:border-primary/30 transition-all duration-200 border border-transparent rounded-lg"
                     onClick={() => toggleCategory(catId)}
                   >
-                    <span>{cat.icon}</span>
+                    <span>{cat.icon || "🍴"}</span>
                     <span>{cat.name}</span>
                     <X className="h-3 w-3 ml-1" />
                   </Badge>
@@ -369,7 +471,7 @@ export default function MealsPage() {
               {showVegetarian && (
                 <Badge
                   variant="secondary"
-                  className="gap-1.5 pl-2 pr-1 py-1 cursor-pointer hover:bg-secondary/80 transition-colors"
+                  className="gap-1.5 pl-2.5 pr-1.5 py-1.5 cursor-pointer hover:bg-primary/10 hover:border-primary/30 transition-all duration-200 border border-transparent rounded-lg"
                   onClick={() => setShowVegetarian(false)}
                 >
                   <span>🌱</span>
@@ -380,7 +482,7 @@ export default function MealsPage() {
               {showSpicy && (
                 <Badge
                   variant="secondary"
-                  className="gap-1.5 pl-2 pr-1 py-1 cursor-pointer hover:bg-secondary/80 transition-colors"
+                  className="gap-1.5 pl-2.5 pr-1.5 py-1.5 cursor-pointer hover:bg-primary/10 hover:border-primary/30 transition-all duration-200 border border-transparent rounded-lg"
                   onClick={() => setShowSpicy(false)}
                 >
                   <span>🌶️</span>
@@ -396,7 +498,7 @@ export default function MealsPage() {
         <div className="flex gap-8">
           {/* Desktop Sidebar */}
           <aside className="hidden lg:block w-72 flex-shrink-0">
-            <div className="sticky top-24 bg-card rounded-2xl p-6 shadow-lg border border-border/50">
+            <div className="sticky top-24 bg-card rounded-2xl p-6 shadow-lg border border-border/50 backdrop-blur-sm">
               <h2 className="font-bold text-lg text-foreground mb-6 flex items-center gap-2">
                 <Filter className="h-5 w-5 text-primary" />
                 Filters
@@ -406,7 +508,18 @@ export default function MealsPage() {
                   </Badge>
                 )}
               </h2>
-              <FilterContent />
+              <FilterContent
+                categories={categories}
+                selectedCategories={selectedCategories}
+                toggleCategory={toggleCategory}
+                getCategoryMealCount={getCategoryMealCount}
+                showVegetarian={showVegetarian}
+                setShowVegetarian={setShowVegetarian}
+                showSpicy={showSpicy}
+                setShowSpicy={setShowSpicy}
+                hasActiveFilters={hasActiveFilters}
+                clearFilters={clearFilters}
+              />
             </div>
           </aside>
 
@@ -414,9 +527,9 @@ export default function MealsPage() {
           <div className="flex-1 min-w-0">
             {filteredMeals.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
-                {filteredMeals.map((meal, index) => (
+                {filteredMeals.map((mealDetails, index) => (
                   <div
-                    key={meal.id}
+                    key={mealDetails.id}
                     className="animate-fade-in"
                     style={
                       {
@@ -425,7 +538,7 @@ export default function MealsPage() {
                       } as React.CSSProperties
                     }
                   >
-                    <MealCard meal={meal} />
+                    <MealCard meal ={mealDetails} />
                   </div>
                 ))}
               </div>
@@ -447,7 +560,7 @@ export default function MealsPage() {
                 <Button
                   onClick={clearFilters}
                   size="lg"
-                  className="bg-primary hover:bg-primary/90"
+                  className="bg-primary hover:bg-primary/90 rounded-xl transition-all duration-200"
                 >
                   <X className="h-4 w-4 mr-2" />
                   Clear All Filters

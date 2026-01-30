@@ -12,37 +12,33 @@ const getAllMeal = async () => {
 };
 
 const createMeal = async (data: Meal) => {
-  //   const {
-  //     name,
-  //     slug,
-  //     description,
-  //     image,
-  //     price,
-  //     originalPrice,
-  //     categoryId,
-  //     calories,
-  //     prepTime,
-  //     isVegetarian,
-  //     isPopular,
-  //     isSpicy,
-  //     ingredients,
-  //     providerId,
-  //   } = payload || {};
-
-  console.log(data);
-
   try {
-    const result = await prisma.meal.create({
-      data,
-    });
-
-    return result;
-  } catch (err) {
-    throw new Error("Meal Create error");
-  }
+  const result = await prisma.meal.createMany({
+    data,
+  });
+  return result;
+} catch (err) {
+  console.error(err); // Log the actual error to get more information
+  throw new Error("Meal Create error");
+}
 };
+
+const getMealById =async (id : string) =>{
+  try{
+    const result =await prisma.meal.findUnique({
+      where: {
+        id: id
+      }
+    })
+
+    return result ;
+  }catch(error){
+    throw new Error ("Meal Details find fail")
+  }
+}
 
 export const mealService = {
   getAllMeal,
-  createMeal
+  createMeal,
+  getMealById
 };
