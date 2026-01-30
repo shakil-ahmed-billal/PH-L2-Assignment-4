@@ -28,10 +28,13 @@ app.all("/api/auth/*splat", toNodeHandler(auth));
 
 
 
-app.get("/", (req, res) => {
-  res.json({ 
-    status: "ok", 
-    timestamp: new Date().toISOString() });
+app.get('/', (req, res) => {
+  res.set('Cache-Control', 'no-store');  
+  res.json({
+    status: "ok new",
+    timestamp: new Date().toISOString()
+  });
 });
+
 
 export default app

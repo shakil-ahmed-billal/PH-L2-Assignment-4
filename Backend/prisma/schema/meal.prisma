@@ -1,27 +1,41 @@
 model Meal {
-  id          String   @id @default(uuid())
-  name        String
-  description String?
-  price       Float
-  image       String?
-  available   Boolean  @default(true)
+  id            String     @id @default(uuid()) 
+  name          String
+  description   String?
+  price         Float
+  originalPrice Float
+  image         String?
+  available     Boolean    @default(true)
+  slug          String
+  calories      Int?
+  prepTime      String?
+  isVegetarian  Boolean    @default(false)
+  isSpicy       Boolean    @default(false)
+  isPopular     Boolean    @default(false)
+  ingredients   String[]
 
-  providerId String
-  categoryId String
+  providerId    String
+  categoryId    String
 
-  provider ProviderProfile @relation(fields: [providerId], references: [id])
-  category Category        @relation(fields: [categoryId], references: [id])
+  provider      ProviderProfile @relation(fields: [providerId], references: [id])
+  category      Category        @relation(fields: [categoryId], references: [id])
 
-  orderItems OrderItem[]
-  reviews    Review[]
+  orderItems    OrderItem[]
+  reviews       Review[]
 
-  createdAt DateTime @default(now())
+  createdAt     DateTime @default(now())
 }
 
 
 model Category {
-  id    String @id @default(uuid())
-  name  String @unique
+  id        String   @id
+  name      String
+  slug      String   @unique
+  icon      String
+  image     String
+  mealCount Int      @map("meal_count")
 
+  createdAt DateTime @default(now())
+  
   meals Meal[]
 }

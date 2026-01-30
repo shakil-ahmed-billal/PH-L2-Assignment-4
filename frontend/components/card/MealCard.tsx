@@ -1,26 +1,26 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { useCart } from "@/context/CartContext";
 import { Meal } from "@/lib/mockData";
 import { cn } from "@/lib/utils";
 import { Clock, Plus, Star } from "lucide-react";
 import Link from "next/link";
+import { toast } from "sonner";
 
 interface MealCardProps extends React.HTMLAttributes<HTMLAnchorElement> {
   meal: Meal;
 }
 
 const MealCard = ({ meal, className, ...props }: MealCardProps) => {
-  //   const { addToCart } = useCart();
+
+    const { addToCart } = useCart();
 
   const handleAddToCart = (e: React.MouseEvent) => {
-    // e.preventDefault();
-    // e.stopPropagation();
-    // addToCart(meal, 1);
-    // toast.success({
-    //   title: "Added to cart! 🛒",
-    //   description: `${meal.name} has been added to your cart.`,
-    // });
+    e.preventDefault();
+    e.stopPropagation();
+    addToCart(meal, 1);
+    toast.success(`Added to cart! 🛒${meal.name} has been added to your cart.`);
   };
 
   return (

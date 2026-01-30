@@ -1,3 +1,5 @@
+"use client"
+
 import { ArrowRight, Clock, Star, Truck, ShieldCheck, ChefHat } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import MealCard from "@/components/card/MealCard";
@@ -5,11 +7,16 @@ import { categories, providers, getPopularMeals, reviews } from "@/lib/mockData"
 import ProviderCard from "@/provider/ProviderCard";
 import CategoryCard from "@/components/card/CategoryCard";
 import Link from "next/link";
+import { useData } from "@/hooks/useData";
+
 
 const HomePage = () => {
   const popularMeals = getPopularMeals().slice(0, 8);
   const featuredProviders = providers.slice(0, 3);
   const featuredReviews = reviews.slice(0, 3);
+
+  const {category} = useData() ;
+  console.log(category)
 
   return (
     <div className=" my-8 md:my-12 lg:my-16 space-y-20 ">
@@ -35,7 +42,7 @@ const HomePage = () => {
               
               <div className="flex flex-col sm:flex-row gap-4">
                 <Link href="/meals">
-                  <Button variant="hero" size="xl" className="group">
+                  <Button variant="hero" size="xl" className="group ">
                     Order Now
                     <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
                   </Button>

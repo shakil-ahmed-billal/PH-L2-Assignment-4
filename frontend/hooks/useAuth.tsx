@@ -110,7 +110,7 @@ export function useAuth() {
     }
   };
 
-  const signOut = async () => {
+  const logout = async () => {
     try {
       await authClient.signOut();
       // Clear session after sign out
@@ -136,7 +136,7 @@ export function useAuth() {
     loading,
     signUp,
     signIn,
-    signOut,
+    logout,
     handleGoogleLogin,
   };
 }
