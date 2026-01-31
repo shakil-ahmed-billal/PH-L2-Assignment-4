@@ -10,7 +10,7 @@ const PopularMealSection = () => {
 
 
   const {meal} = useData()
-  const popularMeals = meal.slice(0 , 3)
+  const popularMeals = meal.slice(0 , 8)
 
   if(!meal.length){
     return null

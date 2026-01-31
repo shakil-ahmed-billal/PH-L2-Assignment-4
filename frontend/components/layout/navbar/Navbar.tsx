@@ -88,10 +88,10 @@ const Navbar = ({ className }: NavbarProps) => {
         { title: 'Orders', url: '/provider/dashboard/orders' },
       ],
       admin: [
-        { title: 'Dashboard', url: '/admin' },
-        { title: 'Users', url: '/admin/users' },
-        { title: 'Orders', url: '/admin/orders' },
-        { title: 'Categories', url: '/admin/categories' },
+        { title: 'Dashboard', url: '/admin/dashboard' },
+        { title: 'Users', url: '/admin/dashboard/users' },
+        { title: 'Orders', url: '/admin/dashboard/orders' },
+        { title: 'Categories', url: '/admin/dashboard/category' },
       ],
     };
 

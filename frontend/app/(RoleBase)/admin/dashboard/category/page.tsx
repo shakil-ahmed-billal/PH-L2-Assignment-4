@@ -1,10 +1,10 @@
-import ProviderMenu from '@/components/page/provider/ProviderMenu'
+import AdminCategories from '@/components/page/admin/AdminCategories'
 import React from 'react'
 
 const page = () => {
   return (
     <div>
-      <ProviderMenu/>
+        <AdminCategories/>
     </div>
   )
 }

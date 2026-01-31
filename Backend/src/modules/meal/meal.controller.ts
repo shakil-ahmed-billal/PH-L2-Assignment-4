@@ -23,8 +23,6 @@ const getAllMeal = async(req:Request , res:Response) =>{
 }
 
 
-
-
 const createMeal = async(req:Request , res:Response) =>{
 
     const result = await mealService.createMeal(req.body)

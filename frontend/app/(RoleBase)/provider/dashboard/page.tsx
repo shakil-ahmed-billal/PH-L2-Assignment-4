@@ -1,3 +1,4 @@
+import ProviderDashboard from "@/components/page/provider/ProviderDashboard"
 
 
 
@@ -5,7 +6,7 @@ const page = () =>{
 
   return (
     <div className="">
-      <p>name</p>
+      <ProviderDashboard/>
     </div>
   )
 }

@@ -1,7 +1,5 @@
 // FoodHub Mock Data
 
-import { useData } from "@/hooks/useData";
-
 export interface Category {
   id: string;
   name: string;
@@ -66,6 +64,43 @@ export interface CartItem {
   quantity: number;
 }
 
+export interface Order {
+  id: string;
+  userId: string;
+  userName: string;
+  userEmail: string;
+  userPhone: string;
+  items: {
+    mealId: string;
+    mealName: string;
+    quantity: number;
+    price: number;
+  }[];
+  subtotal: number;
+  deliveryFee: number;
+  total: number;
+  status: "placed" | "preparing" | "ready" | "delivered" | "cancelled";
+  deliveryAddress: string;
+  paymentMethod: "cash";
+  providerId: string;
+  providerName: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface AdminUser {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  role: "customer" | "provider" | "admin";
+  status: "active" | "suspended";
+  avatar: string;
+  createdAt: string;
+  ordersCount?: number;
+  totalSpent?: number;
+  restaurantName?: string;
+}
 
 // Categories
 export const categories: Category[] = [
@@ -501,108 +536,108 @@ export const meals: Meal[] = [
     isVegetarian: false,
     isSpicy: false,
     isPopular: true,
-    ingredients: ["Grilled Steak", "Corn Tortillas", "Cilantro", "Onions", "Salsa Verde"],
+    ingredients: ["Corn Tortillas", "Grilled Steak", "Cilantro", "Onions", "Salsa Verde"],
   },
   {
     id: "meal-14",
     name: "Chicken Burrito Bowl",
     slug: "chicken-burrito-bowl",
-    description: "Deconstructed burrito with grilled chicken, rice, black beans, corn, pico de gallo, and guacamole.",
+    description: "Grilled chicken with cilantro lime rice, black beans, corn, pico de gallo, guacamole, and sour cream.",
     image: "https://images.unsplash.com/photo-1626700051175-6818013e1d4f?w=600&h=400&fit=crop",
-    price: 12.99,
+    price: 14.99,
     category: "Mexican",
     categoryId: "cat-8",
     providerId: "prov-5",
     providerName: "Taco Fiesta",
     rating: 4.6,
-    reviewCount: 267,
+    reviewCount: 287,
     calories: 680,
     prepTime: "10-12 min",
     isVegetarian: false,
     isSpicy: false,
     isPopular: true,
-    ingredients: ["Grilled Chicken", "Rice", "Black Beans", "Corn", "Pico de Gallo", "Guacamole"],
+    ingredients: ["Grilled Chicken", "Cilantro Lime Rice", "Black Beans", "Guacamole", "Pico de Gallo"],
   },
   {
     id: "meal-15",
     name: "Spicy Carnitas Quesadilla",
     slug: "spicy-carnitas-quesadilla",
-    description: "Crispy flour tortilla stuffed with slow-cooked pork, three cheeses, jalapeños, and chipotle crema.",
+    description: "Crispy flour tortilla stuffed with slow-cooked carnitas, melted cheese, jalapeños, and chipotle crema.",
     image: "https://images.unsplash.com/photo-1618040996337-56904b7850b9?w=600&h=400&fit=crop",
-    price: 11.99,
+    price: 12.99,
     category: "Mexican",
     categoryId: "cat-8",
     providerId: "prov-5",
     providerName: "Taco Fiesta",
     rating: 4.5,
     reviewCount: 198,
-    calories: 780,
+    calories: 720,
     prepTime: "10-12 min",
     isVegetarian: false,
     isSpicy: true,
     isPopular: false,
-    ingredients: ["Slow-Cooked Pork", "Three Cheeses", "Jalapeños", "Chipotle Crema"],
+    ingredients: ["Flour Tortilla", "Carnitas", "Cheese", "Jalapeños", "Chipotle Crema"],
   },
-  // Sweet Dreams Bakery meals
+  // Sweet Dreams Bakery
   {
     id: "meal-16",
-    name: "New York Cheesecake",
-    slug: "new-york-cheesecake",
-    description: "Creamy, rich New York-style cheesecake with a buttery graham cracker crust and strawberry topping.",
-    image: "https://images.unsplash.com/photo-1565958011703-44f9829ba187?w=600&h=400&fit=crop",
+    name: "Chocolate Lava Cake",
+    slug: "chocolate-lava-cake",
+    description: "Warm chocolate cake with a molten center, served with vanilla ice cream and fresh berries.",
+    image: "https://images.unsplash.com/photo-1551024601-bec78aea704b?w=600&h=400&fit=crop",
     price: 8.99,
     category: "Desserts",
     categoryId: "cat-6",
     providerId: "prov-6",
     providerName: "Sweet Dreams Bakery",
     rating: 4.9,
-    reviewCount: 423,
-    calories: 450,
-    prepTime: "5 min",
-    isVegetarian: true,
-    isSpicy: false,
-    isPopular: true,
-    ingredients: ["Cream Cheese", "Graham Cracker", "Strawberries", "Sugar", "Vanilla"],
-  },
-  {
-    id: "meal-17",
-    name: "Chocolate Lava Cake",
-    slug: "chocolate-lava-cake",
-    description: "Warm, gooey chocolate cake with a molten center, served with vanilla ice cream and fresh berries.",
-    image: "https://images.unsplash.com/photo-1551024601-bec78aea704b?w=600&h=400&fit=crop",
-    price: 9.99,
-    category: "Desserts",
-    categoryId: "cat-6",
-    providerId: "prov-6",
-    providerName: "Sweet Dreams Bakery",
-    rating: 4.9,
-    reviewCount: 534,
-    calories: 580,
-    prepTime: "12-15 min",
+    reviewCount: 456,
+    calories: 520,
+    prepTime: "15-18 min",
     isVegetarian: true,
     isSpicy: false,
     isPopular: true,
     ingredients: ["Dark Chocolate", "Butter", "Eggs", "Vanilla Ice Cream", "Fresh Berries"],
   },
   {
-    id: "meal-18",
-    name: "Tiramisu",
-    slug: "tiramisu",
-    description: "Classic Italian dessert with espresso-soaked ladyfingers layered with mascarpone cream and cocoa.",
-    image: "https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?w=600&h=400&fit=crop",
-    price: 8.49,
+    id: "meal-17",
+    name: "New York Cheesecake",
+    slug: "new-york-cheesecake",
+    description: "Creamy classic cheesecake with a graham cracker crust, topped with strawberry compote.",
+    image: "https://images.unsplash.com/photo-1533134242443-d4fd215305ad?w=600&h=400&fit=crop",
+    price: 7.99,
     category: "Desserts",
     categoryId: "cat-6",
     providerId: "prov-6",
     providerName: "Sweet Dreams Bakery",
     rating: 4.8,
-    reviewCount: 287,
-    calories: 420,
-    prepTime: "5 min",
+    reviewCount: 324,
+    calories: 450,
+    prepTime: "5-8 min",
     isVegetarian: true,
     isSpicy: false,
     isPopular: true,
-    ingredients: ["Mascarpone", "Espresso", "Ladyfingers", "Cocoa", "Marsala Wine"],
+    ingredients: ["Cream Cheese", "Graham Cracker", "Eggs", "Strawberry Compote"],
+  },
+  {
+    id: "meal-18",
+    name: "Tiramisu",
+    slug: "tiramisu",
+    description: "Italian classic with layers of espresso-soaked ladyfingers and mascarpone cream, dusted with cocoa.",
+    image: "https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?w=600&h=400&fit=crop",
+    price: 9.49,
+    category: "Desserts",
+    categoryId: "cat-6",
+    providerId: "prov-6",
+    providerName: "Sweet Dreams Bakery",
+    rating: 4.9,
+    reviewCount: 287,
+    calories: 380,
+    prepTime: "5-8 min",
+    isVegetarian: true,
+    isSpicy: false,
+    isPopular: true,
+    ingredients: ["Mascarpone", "Espresso", "Ladyfingers", "Cocoa Powder"],
   },
 ];
 
@@ -613,29 +648,29 @@ export const reviews: Review[] = [
     mealId: "meal-1",
     userId: "user-1",
     userName: "Sarah Johnson",
-    userAvatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop",
+    userAvatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=50&h=50&fit=crop",
     rating: 5,
-    comment: "Best burger I've ever had! The secret sauce is incredible and the patties are perfectly cooked. Will definitely order again!",
+    comment: "Best burger I've ever had! The secret sauce is incredible.",
     date: "2024-01-15",
   },
   {
     id: "rev-2",
     mealId: "meal-1",
     userId: "user-2",
-    userName: "Michael Chen",
-    userAvatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop",
+    userName: "Mike Chen",
+    userAvatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop",
     rating: 5,
-    comment: "The quality is outstanding. You can taste the freshness in every bite. Highly recommend!",
+    comment: "Perfectly cooked patties and the brioche bun is so soft!",
     date: "2024-01-12",
   },
   {
     id: "rev-3",
     mealId: "meal-4",
     userId: "user-3",
-    userName: "Emily Rodriguez",
-    userAvatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop",
+    userName: "Emily Wong",
+    userAvatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=50&h=50&fit=crop",
     rating: 5,
-    comment: "The Rainbow Dragon Roll is a work of art! Beautiful presentation and even better taste. Fresh fish, perfect rice.",
+    comment: "The freshness of the fish is unmatched. Absolutely divine!",
     date: "2024-01-18",
   },
   {
@@ -643,59 +678,291 @@ export const reviews: Review[] = [
     mealId: "meal-7",
     userId: "user-4",
     userName: "David Kim",
-    userAvatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop",
+    userAvatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=50&h=50&fit=crop",
     rating: 4,
-    comment: "Authentic Neapolitan pizza. The crust is perfect - crispy on the outside, chewy on the inside. Great quality ingredients.",
+    comment: "Authentic Neapolitan style. Reminds me of my trip to Italy.",
     date: "2024-01-20",
   },
   {
     id: "rev-5",
-    mealId: "meal-17",
+    mealId: "meal-10",
     userId: "user-5",
-    userName: "Jessica Brown",
-    userAvatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&h=100&fit=crop",
+    userName: "Lisa Park",
+    userAvatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=50&h=50&fit=crop",
     rating: 5,
-    comment: "This chocolate lava cake is absolutely divine! The molten center is perfection. Best dessert in the city!",
+    comment: "So healthy and delicious! The tahini dressing is perfect.",
     date: "2024-01-22",
   },
 ];
 
-// Helper functions
-export const getMealsByCategory = (categoryId: string): Meal[] => {
-  return meals.filter((meal) => meal.categoryId === categoryId);
+// Orders (Mock data for order history and admin)
+export const orders: Order[] = [
+  {
+    id: "order-1",
+    userId: "user-customer-1",
+    userName: "John Customer",
+    userEmail: "customer@foodhub.com",
+    userPhone: "+1 (555) 123-4567",
+    items: [
+      { mealId: "meal-1", mealName: "Classic Smash Burger", quantity: 2, price: 12.99 },
+      { mealId: "meal-2", mealName: "Bacon BBQ Burger", quantity: 1, price: 14.99 },
+    ],
+    subtotal: 40.97,
+    deliveryFee: 2.99,
+    total: 43.96,
+    status: "delivered",
+    deliveryAddress: "123 Customer Street, Apt 4B, New York, NY 10001",
+    paymentMethod: "cash",
+    providerId: "prov-1",
+    providerName: "Burger Palace",
+    createdAt: "2024-01-20T14:30:00Z",
+    updatedAt: "2024-01-20T15:45:00Z",
+  },
+  {
+    id: "order-2",
+    userId: "user-customer-1",
+    userName: "John Customer",
+    userEmail: "customer@foodhub.com",
+    userPhone: "+1 (555) 123-4567",
+    items: [
+      { mealId: "meal-4", mealName: "Rainbow Dragon Roll", quantity: 1, price: 18.99 },
+      { mealId: "meal-5", mealName: "Spicy Tuna Roll", quantity: 2, price: 14.99 },
+    ],
+    subtotal: 48.97,
+    deliveryFee: 3.99,
+    total: 52.96,
+    status: "preparing",
+    deliveryAddress: "123 Customer Street, Apt 4B, New York, NY 10001",
+    paymentMethod: "cash",
+    providerId: "prov-2",
+    providerName: "Sakura Sushi",
+    createdAt: "2024-01-25T12:00:00Z",
+    updatedAt: "2024-01-25T12:15:00Z",
+  },
+  {
+    id: "order-3",
+    userId: "user-6",
+    userName: "Emma Wilson",
+    userEmail: "emma@example.com",
+    userPhone: "+1 (555) 234-5678",
+    items: [
+      { mealId: "meal-7", mealName: "Margherita Pizza", quantity: 2, price: 16.99 },
+    ],
+    subtotal: 33.98,
+    deliveryFee: 1.99,
+    total: 35.97,
+    status: "placed",
+    deliveryAddress: "456 Oak Avenue, Suite 12, New York, NY 10002",
+    paymentMethod: "cash",
+    providerId: "prov-3",
+    providerName: "Pizza Napoli",
+    createdAt: "2024-01-26T18:30:00Z",
+    updatedAt: "2024-01-26T18:30:00Z",
+  },
+  {
+    id: "order-4",
+    userId: "user-7",
+    userName: "James Brown",
+    userEmail: "james@example.com",
+    userPhone: "+1 (555) 345-6789",
+    items: [
+      { mealId: "meal-10", mealName: "Buddha Bowl", quantity: 1, price: 13.99 },
+      { mealId: "meal-12", mealName: "Mediterranean Power Bowl", quantity: 1, price: 14.99 },
+    ],
+    subtotal: 28.98,
+    deliveryFee: 2.49,
+    total: 31.47,
+    status: "ready",
+    deliveryAddress: "789 Pine Street, New York, NY 10003",
+    paymentMethod: "cash",
+    providerId: "prov-4",
+    providerName: "Green Bowl",
+    createdAt: "2024-01-26T17:00:00Z",
+    updatedAt: "2024-01-26T17:45:00Z",
+  },
+  {
+    id: "order-5",
+    userId: "user-8",
+    userName: "Sophia Martinez",
+    userEmail: "sophia@example.com",
+    userPhone: "+1 (555) 456-7890",
+    items: [
+      { mealId: "meal-13", mealName: "Carne Asada Tacos", quantity: 3, price: 13.99 },
+      { mealId: "meal-15", mealName: "Spicy Carnitas Quesadilla", quantity: 1, price: 12.99 },
+    ],
+    subtotal: 54.96,
+    deliveryFee: 2.29,
+    total: 57.25,
+    status: "cancelled",
+    deliveryAddress: "321 Maple Drive, New York, NY 10004",
+    paymentMethod: "cash",
+    providerId: "prov-5",
+    providerName: "Taco Fiesta",
+    createdAt: "2024-01-24T20:00:00Z",
+    updatedAt: "2024-01-24T20:10:00Z",
+  },
+  {
+    id: "order-6",
+    userId: "user-9",
+    userName: "Oliver Davis",
+    userEmail: "oliver@example.com",
+    userPhone: "+1 (555) 567-8901",
+    items: [
+      { mealId: "meal-16", mealName: "Chocolate Lava Cake", quantity: 2, price: 8.99 },
+      { mealId: "meal-17", mealName: "New York Cheesecake", quantity: 2, price: 7.99 },
+      { mealId: "meal-18", mealName: "Tiramisu", quantity: 1, price: 9.49 },
+    ],
+    subtotal: 43.45,
+    deliveryFee: 3.49,
+    total: 46.94,
+    status: "delivered",
+    deliveryAddress: "654 Elm Street, Apt 8C, New York, NY 10005",
+    paymentMethod: "cash",
+    providerId: "prov-6",
+    providerName: "Sweet Dreams Bakery",
+    createdAt: "2024-01-23T19:30:00Z",
+    updatedAt: "2024-01-23T20:30:00Z",
+  },
+];
+
+// Admin Users List
+export const adminUsers: AdminUser[] = [
+  {
+    id: "user-admin-1",
+    name: "Admin User",
+    email: "admin@foodhub.com",
+    phone: "+1 (555) 000-0001",
+    role: "admin",
+    status: "active",
+    avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop",
+    createdAt: "2024-01-01",
+  },
+  {
+    id: "user-customer-1",
+    name: "John Customer",
+    email: "customer@foodhub.com",
+    phone: "+1 (555) 123-4567",
+    role: "customer",
+    status: "active",
+    avatar: "https://images.unsplash.com/photo-1599566150163-29194dcabd36?w=100&h=100&fit=crop",
+    createdAt: "2024-06-15",
+    ordersCount: 12,
+    totalSpent: 458.90,
+  },
+  {
+    id: "user-provider-1",
+    name: "Chef Marco",
+    email: "provider@foodhub.com",
+    phone: "+1 (555) 987-6543",
+    role: "provider",
+    status: "active",
+    avatar: "https://images.unsplash.com/photo-1577219491135-ce391730fb2c?w=100&h=100&fit=crop",
+    createdAt: "2024-03-10",
+    restaurantName: "Burger Palace",
+  },
+  {
+    id: "user-6",
+    name: "Emma Wilson",
+    email: "emma@example.com",
+    phone: "+1 (555) 234-5678",
+    role: "customer",
+    status: "active",
+    avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop",
+    createdAt: "2024-07-20",
+    ordersCount: 8,
+    totalSpent: 234.50,
+  },
+  {
+    id: "user-7",
+    name: "James Brown",
+    email: "james@example.com",
+    phone: "+1 (555) 345-6789",
+    role: "customer",
+    status: "active",
+    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop",
+    createdAt: "2024-05-05",
+    ordersCount: 15,
+    totalSpent: 567.80,
+  },
+  {
+    id: "user-8",
+    name: "Sophia Martinez",
+    email: "sophia@example.com",
+    phone: "+1 (555) 456-7890",
+    role: "customer",
+    status: "suspended",
+    avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop",
+    createdAt: "2024-08-12",
+    ordersCount: 3,
+    totalSpent: 89.25,
+  },
+  {
+    id: "user-prov-2",
+    name: "Chef Yuki",
+    email: "yuki@sakurasushi.com",
+    phone: "+1 (555) 876-5432",
+    role: "provider",
+    status: "active",
+    avatar: "https://images.unsplash.com/photo-1579027989536-b7b1f875659b?w=100&h=100&fit=crop",
+    createdAt: "2024-02-28",
+    restaurantName: "Sakura Sushi",
+  },
+  {
+    id: "user-prov-3",
+    name: "Chef Giovanni",
+    email: "giovanni@pizzanapoli.com",
+    phone: "+1 (555) 765-4321",
+    role: "provider",
+    status: "active",
+    avatar: "https://images.unsplash.com/photo-1583394293214-28ez052c9266?w=100&h=100&fit=crop",
+    createdAt: "2024-04-15",
+    restaurantName: "Pizza Napoli",
+  },
+];
+
+// Provider's own orders (filtered for provider dashboard)
+export const getProviderOrders = (providerId: string) => {
+  return orders.filter((order) => order.providerId === providerId);
 };
 
-export const getMealsByProvider = (providerId: string): Meal[] => {
+// Customer's own orders (filtered for customer)
+export const getCustomerOrders = (userId: string) => {
+  return orders.filter((order) => order.userId === userId);
+};
+
+// Provider's menu items
+export const getProviderMeals = (providerId: string) => {
   return meals.filter((meal) => meal.providerId === providerId);
 };
 
-export const getPopularMeals = (): Meal[] => {
+// Helper functions used by pages
+export const getPopularMeals = () => {
   return meals.filter((meal) => meal.isPopular);
 };
 
-export const getMealById = (id: string): Meal | undefined => {
+export const getMealById = (id: string) => {
   return meals.find((meal) => meal.id === id);
 };
 
-export const getProviderById = (id: string): Provider | undefined => {
-  return providers.find((provider) => provider.id === id);
+export const getMealsByProvider = (providerId: string) => {
+  return meals.filter((meal) => meal.providerId === providerId);
 };
 
-export const getCategoryById = (id: string): Category | undefined => {
-  return categories.find((category) => category.id === id);
-};
-
-export const getReviewsByMealId = (mealId: string): Review[] => {
+export const getReviewsByMealId = (mealId: string) => {
   return reviews.filter((review) => review.mealId === mealId);
 };
 
-export const searchMeals = (query: string): Meal[] => {
-  const lowerQuery = query.toLowerCase();
+export const getProviderById = (id: string) => {
+  return providers.find((provider) => provider.id === id);
+};
+
+export const searchMeals = (query: string) => {
+  const searchTerm = query.toLowerCase();
   return meals.filter(
     (meal) =>
-      meal.name.toLowerCase().includes(lowerQuery) ||
-      meal.description.toLowerCase().includes(lowerQuery) ||
-      meal.category.toLowerCase().includes(lowerQuery) ||
-      meal.providerName.toLowerCase().includes(lowerQuery)
+      meal.name.toLowerCase().includes(searchTerm) ||
+      meal.description.toLowerCase().includes(searchTerm) ||
+      meal.category.toLowerCase().includes(searchTerm) ||
+      meal.providerName.toLowerCase().includes(searchTerm)
   );
 };
