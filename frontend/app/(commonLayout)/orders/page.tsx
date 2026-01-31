@@ -9,39 +9,6 @@ import { Order } from "@/types";
 import { useAuth } from "@/hooks/useAuth";
 import { api } from "@/lib/api";
 
-// Demo order data
-const demoOrders = [
-  {
-    id: "FH-ABC123",
-    date: "2024-01-28",
-    status: "delivered",
-    total: 45.97,
-    items: [
-      { name: "Classic Smash Burger", quantity: 2, price: 12.99 },
-      { name: "Rainbow Dragon Roll", quantity: 1, price: 18.99 },
-    ],
-    provider: "Burger Palace",
-  },
-  {
-    id: "FH-DEF456",
-    date: "2024-01-27",
-    status: "preparing",
-    total: 32.48,
-    items: [
-      { name: "Margherita Pizza", quantity: 1, price: 16.99 },
-      { name: "Buddha Bowl", quantity: 1, price: 13.99 },
-    ],
-    provider: "Pizza Napoli",
-  },
-  {
-    id: "FH-GHI789",
-    date: "2024-01-25",
-    status: "cancelled",
-    total: 24.99,
-    items: [{ name: "Salmon Sashimi Platter", quantity: 1, price: 22.99 }],
-    provider: "Sakura Sushi",
-  },
-];
 
 const statusConfig = {
   placed: { label: "Placed", icon: Package, color: "bg-muted text-muted-foreground" },

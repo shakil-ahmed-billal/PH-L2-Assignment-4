@@ -43,7 +43,21 @@ const getOrderByProviderId = async (req: Request, res: Response) => {
   }
 };
 
+
+const getProviderStats = async (req: Request, res: Response) => {
+  try {
+    const providerId = req.params.id;
+    const stats = await providerService.getProviderStats(providerId as string);
+    res
+      .status(200)
+      .json({ success: true, message: "Stats retrieved successfully", data: stats });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Server Error", error });
+  }
+};
+
 export const providerController = {
   getProviderMealById,
-  getOrderByProviderId
+  getOrderByProviderId,
+  getProviderStats
 };

@@ -15,21 +15,24 @@ import { Badge } from "@/components/ui/badge";
 import { getProviderOrders, getProviderMeals, orders } from "@/lib/mockData";
 import { useAuth } from "@/hooks/useAuth";
 import Link from "next/link";
+import { useEffect, useState } from "react";
+import { Order } from "@/types";
+import { api } from "@/lib/api";
+
 
 const ProviderDashboard = () => {
-  const { user } = useAuth();
+
   
   // For demo, use prov-1 (Burger Palace) as the provider
   const providerId = "prov-1";
   const providerOrders = getProviderOrders(providerId);
   const providerMeals = getProviderMeals(providerId);
+  const { user } = useAuth();
 
   // Calculate stats
   const totalOrders = providerOrders.length;
   const totalRevenue = providerOrders.reduce((sum, order) => sum + order.total, 0);
-  const pendingOrders = providerOrders.filter(
-    (o) => o.status === "placed" || o.status === "preparing"
-  ).length;
+  const pendingOrders = providerOrders.filter((o) => o.status === "placed" || o.status === "preparing").length;
   const completedOrders = providerOrders.filter((o) => o.status === "delivered").length;
 
   const stats = [
@@ -66,6 +69,61 @@ const ProviderDashboard = () => {
       bgColor: "bg-purple-100",
     },
   ];
+
+
+  const [providerSats, setProviderStats] = useState<any[]>([])
+  const [orderProvider, setProviderOrders] = useState<Order[]>([]);
+  
+
+  useEffect(() => {
+    // Check if user exists before making API call
+    if (user) {
+      const GetProviderStats = async () => {
+        const result = await api.get(`/api/provider/stats/${user.id}`);
+        
+        console.log(result);
+        if (result.success) {
+          setProviderStats(result.data as any[]);
+        }
+        
+      };
+
+      GetProviderStats();
+      
+    }
+  }, [user]); 
+
+
+  useEffect(() => {
+    // Check if user exists before making API call
+    if (user) {
+      const GetProviderOrders = async () => {
+        const result = await api.get(`/api/provider/orders/${user.id}`);
+        console.log(result);
+        if (result.success) {
+          setProviderOrders(result.data as Order[]);
+        }
+      };
+      GetProviderOrders();
+    }
+  }, [user]);
+
+
+  if (!user) {
+    return (
+      <div className="text-center py-16">
+        <div className="text-6xl mb-4">🔒</div>
+        <h2 className="text-xl font-semibold text-foreground mb-2">
+          You must be logged in to see your orders
+        </h2>
+        <Link href="/login">
+          <Button>Login</Button>
+        </Link>
+      </div>
+    );
+  }
+
+  console.log(providerSats , orderProvider);
 
   const recentOrders = providerOrders.slice(0, 5);
 
