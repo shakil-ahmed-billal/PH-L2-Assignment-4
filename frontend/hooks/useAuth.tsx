@@ -1,84 +1,150 @@
 "use client";
 
+import { api } from "@/lib/api";
 import { authClient } from "@/lib/authClient";
 import { ReactNode, useEffect, useState } from "react";
 
-export function AuthProvider({ children }: { children: ReactNode }) {
-  return <>{children}</>;
+/* =====================
+   Types
+===================== */
+
+interface AuthUser {
+  id: string;
+  name?: string;
+  email: string;
+  role?: "USER" | "PROVIDER" | "ADMIN";
+  providerId?: string;
+  providerProfile?: any;
+  userId?: any ;
 }
 
 interface SignUpData {
   name: string;
   email: string;
   password: string;
-  role?: string; // Add 'role' if required
+  role?: "USER" | "PROVIDER";
 }
 
+/* =====================
+   Provider Wrapper
+===================== */
+
+export function AuthProvider({ children }: { children: ReactNode }) {
+  return <>{children}</>;
+}
+
+/* =====================
+   useAuth Hook
+===================== */
+
 export function useAuth() {
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<AuthUser | null>(null);
   const [session, setSession] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
+  /* =====================
+     Load Session
+  ===================== */
+
   useEffect(() => {
-    // Get initial session
-    const fetchSession = async () => {
+    const loadSession = async () => {
       try {
         const result = await authClient.getSession();
-        if (result.data) {
-          setSession(result.data);
-          setUser(result.data.user || null);
+
+        if (!result?.data) {
+          setUser(null);
+          setSession(null);
+          return;
+        }
+
+        setSession(result.data);
+
+        const authUser = result.data.user as AuthUser;
+
+        // PROVIDER হলে provider profile fetch
+        if (authUser.role === "PROVIDER") {
+          try {
+            const providerRes = await api.get(
+              `/api/provider/profile/${authUser.id}`,
+            );
+
+            if (providerRes?.success) {
+              setUser({
+                ...authUser,
+                id: providerRes.data.id ,
+                providerProfile: providerRes.data,
+                userId: authUser.id
+              });
+            } else {
+              setUser(authUser);
+            }
+          } catch {
+            setUser(authUser);
+          }
+        } else {
+          setUser(authUser);
         }
       } catch (error) {
-        console.error("Failed to get session:", error);
+        console.error("Session load failed:", error);
+        setUser(null);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchSession();
+    loadSession();
   }, []);
 
+  /* =====================
+     Sign Up
+  ===================== */
+
   const signUp = async (data: SignUpData) => {
-    console.log(data);
     try {
-      const result = await authClient.signUp.email(data);
+      const result = await authClient.signUp.email({
+        email: data.email,
+        password: data.password,
+        name: data.name,
+      });
+
       if (result.error) {
         return { error: result.error };
       }
-      if (data.role == "PROVIDER") {
-       
+
+      // PROVIDER হলে provider create
+      if (data.role === "PROVIDER") {
+        await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/register`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: data.name,
+            email: data.email,
+            role: "PROVIDER",
+          }),
+        });
       }
-     if(data.role === "PROVIDER"){
-        const createProvider = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/api/auth/register`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              name: data.name,
-              email: data.email,
-              role: data.role,
-            }),
-          },
-        );
-        console.log(createProvider);
-     }
+
+      // Refresh session
       const sessionResult = await authClient.getSession();
+
       if (sessionResult.data) {
         setSession(sessionResult.data);
-        setUser(sessionResult.data.user || null);
+        setUser(sessionResult.data.user as AuthUser);
       }
+
       return { data: result.data, error: null };
     } catch (error: any) {
       return {
         error: {
-          message: error.message || "Failed to create account",
+          message: error.message || "Failed to sign up",
         },
       };
     }
   };
+
+  /* =====================
+     Sign In
+  ===================== */
 
   const signIn = async (email: string, password: string) => {
     try {
@@ -87,17 +153,35 @@ export function useAuth() {
         password,
       });
 
-      console.log(result);
-
       if (result.error) {
         return { error: result.error };
       }
 
-      // Refresh session after sign in
       const sessionResult = await authClient.getSession();
+
       if (sessionResult.data) {
+        const authUser = sessionResult.data.user as AuthUser;
+
+        // PROVIDER হলে provider profile fetch
+        if (authUser.role === "PROVIDER") {
+          const providerRes = await api.get(
+            `/api/provider/profile/${authUser.id}`,
+          );
+
+          if (providerRes?.success) {
+            setUser({
+              ...authUser,
+              providerId: providerRes.data.id,
+              providerProfile: providerRes.data,
+            });
+          } else {
+            setUser(authUser);
+          }
+        } else {
+          setUser(authUser);
+        }
+
         setSession(sessionResult.data);
-        setUser(sessionResult.data.user || null);
       }
 
       return { data: result.data, error: null };
@@ -110,25 +194,34 @@ export function useAuth() {
     }
   };
 
+  /* =====================
+     Logout
+  ===================== */
+
   const logout = async () => {
     try {
       await authClient.signOut();
-      // Clear session after sign out
-      setSession(null);
       setUser(null);
-    } catch (error: any) {
-      console.error("Sign out error:", error);
+      setSession(null);
+    } catch (error) {
+      console.error("Logout failed:", error);
     }
   };
 
+  /* =====================
+     Google Login
+  ===================== */
+
   const handleGoogleLogin = async () => {
-    const data = authClient.signIn.social({
+    await authClient.signIn.social({
       provider: "google",
       callbackURL: "http://localhost:3000",
     });
-
-    console.log(data);
   };
+
+  /* =====================
+     Return
+  ===================== */
 
   return {
     user,

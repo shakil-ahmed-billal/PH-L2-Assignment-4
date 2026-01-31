@@ -81,6 +81,12 @@ const navigationData = {
           icon: DollarSign,
           description: "Earnings & payouts",
         },
+        {
+          title: "Profile",
+          url: "/provider/dashboard/profile",
+          icon: Users,
+          description: "Customer insights",
+        },
       ],
     },
     {

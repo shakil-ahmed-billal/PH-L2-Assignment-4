@@ -538,7 +538,7 @@ export default function MealsPage() {
                       } as React.CSSProperties
                     }
                   >
-                    <MealCard meal ={mealDetails} />
+                    <MealCard meal={mealDetails} />
                   </div>
                 ))}
               </div>

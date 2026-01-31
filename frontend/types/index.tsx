@@ -11,4 +11,5 @@ export interface Order {
     total: number;
     items: OrderItem[];
     provider: string;
+    userName?: string;
 }

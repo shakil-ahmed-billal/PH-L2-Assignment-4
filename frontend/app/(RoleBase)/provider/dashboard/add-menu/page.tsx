@@ -22,6 +22,7 @@ import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/hooks/useAuth";
 import useAxiosPublic from "@/hooks/useAxiosPublic";
+import { api } from "@/lib/api";
 import { categories } from "@/lib/mockData";
 import { Check, Loader2, Plus, X } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -171,35 +172,35 @@ const MenuCreateForm = () => {
 
       // Submit to API
 
+      const response = await api.post(`/api/meal` , mealData)
+      console.log(response);
 
-      console.log(mealData);
+        if (response.data) {
+          toast('Meal has been created successfully.');
 
-      //   if (response.data) {
-      //     toast('Meal has been created successfully.');
+          // Reset form
+          setFormData({
+            name: '',
+            slug: '',
+            description: '',
+            image: '',
+            price: 0,
+            originalPrice: undefined,
+            categoryId: '',
+            providerId: '',
+            calories: 0,
+            prepTime: '',
+            isVegetarian: false,
+            isSpicy: false,
+            isPopular: false,
+            ingredients: [],
+          });
+          setImagePreview('');
 
-      //     // Reset form
-      //     setFormData({
-      //       name: '',
-      //       slug: '',
-      //       description: '',
-      //       image: '',
-      //       price: 0,
-      //       originalPrice: undefined,
-      //       categoryId: '',
-      //       providerId: '',
-      //       calories: 0,
-      //       prepTime: '',
-      //       isVegetarian: false,
-      //       isSpicy: false,
-      //       isPopular: false,
-      //       ingredients: [],
-      //     });
-      //     setImagePreview('');
+          // Redirect to menu page or stay on form
+          // router.push('/provider/menu');
 
-      //     // Redirect to menu page or stay on form
-      //     // router.push('/provider/menu');
-
-      //   }
+        }
     } catch (error: any) {
       console.error("Error creating meal:", error);
       toast("Failed to create meal. Please try again.");

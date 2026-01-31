@@ -79,7 +79,7 @@ export interface Order {
   subtotal: number;
   deliveryFee: number;
   total: number;
-  status: "placed" | "preparing" | "ready" | "delivered" | "cancelled";
+  status: "PLACED" | "PREPARING" | "READY" | "DELIVERED" | "CANCELLED";
   deliveryAddress: string;
   paymentMethod: "cash";
   providerId: string;
@@ -710,7 +710,7 @@ export const orders: Order[] = [
     subtotal: 40.97,
     deliveryFee: 2.99,
     total: 43.96,
-    status: "delivered",
+    status: "DELIVERED",
     deliveryAddress: "123 Customer Street, Apt 4B, New York, NY 10001",
     paymentMethod: "cash",
     providerId: "prov-1",
@@ -731,7 +731,7 @@ export const orders: Order[] = [
     subtotal: 48.97,
     deliveryFee: 3.99,
     total: 52.96,
-    status: "preparing",
+    status: "PREPARING",
     deliveryAddress: "123 Customer Street, Apt 4B, New York, NY 10001",
     paymentMethod: "cash",
     providerId: "prov-2",
@@ -751,7 +751,7 @@ export const orders: Order[] = [
     subtotal: 33.98,
     deliveryFee: 1.99,
     total: 35.97,
-    status: "placed",
+    status: "PLACED",
     deliveryAddress: "456 Oak Avenue, Suite 12, New York, NY 10002",
     paymentMethod: "cash",
     providerId: "prov-3",
@@ -772,7 +772,7 @@ export const orders: Order[] = [
     subtotal: 28.98,
     deliveryFee: 2.49,
     total: 31.47,
-    status: "ready",
+    status: "READY",
     deliveryAddress: "789 Pine Street, New York, NY 10003",
     paymentMethod: "cash",
     providerId: "prov-4",
@@ -793,7 +793,7 @@ export const orders: Order[] = [
     subtotal: 54.96,
     deliveryFee: 2.29,
     total: 57.25,
-    status: "cancelled",
+    status: "CANCELLED",
     deliveryAddress: "321 Maple Drive, New York, NY 10004",
     paymentMethod: "cash",
     providerId: "prov-5",
@@ -815,7 +815,7 @@ export const orders: Order[] = [
     subtotal: 43.45,
     deliveryFee: 3.49,
     total: 46.94,
-    status: "delivered",
+    status: "DELIVERED",
     deliveryAddress: "654 Elm Street, Apt 8C, New York, NY 10005",
     paymentMethod: "cash",
     providerId: "prov-6",
