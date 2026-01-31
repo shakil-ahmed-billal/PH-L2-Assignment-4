@@ -1,0 +1,14 @@
+model ProviderProfile {
+    id          String  @id @default(uuid())
+    userId      String  @unique
+    restaurant  String?
+    description String?
+    address     String?
+    phone       String?
+
+    user  User   @relation(fields: [userId], references: [id])
+    meals Meal[]
+    orders Order[] 
+
+    createdAt DateTime @default(now())
+}
