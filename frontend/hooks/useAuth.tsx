@@ -4,9 +4,7 @@ import { api } from "@/lib/api";
 import { authClient } from "@/lib/authClient";
 import { ReactNode, useEffect, useState } from "react";
 
-/* =====================
-   Types
-===================== */
+
 
 interface AuthUser {
   id: string;
@@ -25,26 +23,20 @@ interface SignUpData {
   role?: "USER" | "PROVIDER";
 }
 
-/* =====================
-   Provider Wrapper
-===================== */
+
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   return <>{children}</>;
 }
 
-/* =====================
-   useAuth Hook
-===================== */
+
 
 export function useAuth() {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [session, setSession] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
-  /* =====================
-     Load Session
-  ===================== */
+
 
   useEffect(() => {
     const loadSession = async () => {
@@ -61,7 +53,6 @@ export function useAuth() {
 
         const authUser = result.data.user as AuthUser;
 
-        // PROVIDER হলে provider profile fetch
         if (authUser.role === "PROVIDER") {
           try {
             const providerRes = await api.get(
@@ -95,9 +86,6 @@ export function useAuth() {
     loadSession();
   }, []);
 
-  /* =====================
-     Sign Up
-  ===================== */
 
   const signUp = async (data: SignUpData) => {
     try {
@@ -105,26 +93,23 @@ export function useAuth() {
         email: data.email,
         password: data.password,
         name: data.name,
+        role: data.role
       });
 
       if (result.error) {
         return { error: result.error };
       }
 
-      // PROVIDER হলে provider create
+
       if (data.role === "PROVIDER") {
-        await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/register`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            name: data.name,
-            email: data.email,
-            role: "PROVIDER",
-          }),
-        });
+        const result = await api.post("/api/auth/register" , {
+          name: data.name,
+          email: data.email,
+          role: "PROVIDER",
+        })
       }
 
-      // Refresh session
+
       const sessionResult = await authClient.getSession();
 
       if (sessionResult.data) {
@@ -142,9 +127,7 @@ export function useAuth() {
     }
   };
 
-  /* =====================
-     Sign In
-  ===================== */
+
 
   const signIn = async (email: string, password: string) => {
     try {
@@ -162,7 +145,7 @@ export function useAuth() {
       if (sessionResult.data) {
         const authUser = sessionResult.data.user as AuthUser;
 
-        // PROVIDER হলে provider profile fetch
+
         if (authUser.role === "PROVIDER") {
           const providerRes = await api.get(
             `/api/provider/profile/${authUser.id}`,
@@ -194,9 +177,7 @@ export function useAuth() {
     }
   };
 
-  /* =====================
-     Logout
-  ===================== */
+
 
   const logout = async () => {
     try {
@@ -208,9 +189,7 @@ export function useAuth() {
     }
   };
 
-  /* =====================
-     Google Login
-  ===================== */
+
 
   const handleGoogleLogin = async () => {
     await authClient.signIn.social({
@@ -219,9 +198,7 @@ export function useAuth() {
     });
   };
 
-  /* =====================
-     Return
-  ===================== */
+
 
   return {
     user,

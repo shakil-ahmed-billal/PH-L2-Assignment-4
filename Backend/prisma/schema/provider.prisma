@@ -1,9 +1,40 @@
+/*
+ {
+    id: "prov-1",
+    name: "Burger Palace",
+    slug: "burger-palace",
+    description: "Home of the juiciest burgers in town. Made with 100% premium beef and fresh ingredients.",
+    image: "https://images.unsplash.com/photo-1466978913421-dad2ebd01d17?w=200&h=200&fit=crop",
+    coverImage: "https://images.unsplash.com/photo-1550547660-d9450f859349?w=1200&h=400&fit=crop",
+    rating: 4.8,
+    reviewCount: 1250,
+    deliveryTime: "25-35 min",
+    deliveryFee: 2.99,
+    minOrder: 15,
+    cuisine: ["American", "Fast Food", "Burgers"],
+    isOpen: true,
+    address: "123 Main Street, Downtown",
+  },
+*/
+
+
 model ProviderProfile {
     id          String  @id @default(uuid())
     userId      String  @unique
-    restaurant  String?
+    name        String?
+    slug        String?
     description String?
+    image       String?
+    coverImage  String?
+    rating      Int @default(0)
+    reviewCount Int @default(0)
+    deliveryTime String @default("25-35 min")
+    deliveryFee  Int @default(2)
+    minOrder    Int @default(0)
+    cuisine    String[] @default([])
+    isOpen      Boolean @default(true)
     address     String?
+    restaurant  String?
     phone       String?
 
     user  User   @relation(fields: [userId], references: [id])

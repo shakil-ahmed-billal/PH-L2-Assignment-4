@@ -4,6 +4,8 @@ import { categoryRoute } from "./modules/category/category.routes";
 import { mealRoute } from "./modules/meal/meal.routes";
 import { orderRouter } from "./modules/order/order.routes";
 import { providerRouter } from "./modules/provider/provider.routes";
+import { adminRouter } from "./modules/admin/admin.routes";
+import { restaurantRouter } from "./modules/restaurant/restaurant.routes";
 
 
 
@@ -19,7 +21,8 @@ router.use("/cat" , categoryRoute);
 router.use("/meal" , mealRoute);
 router.use('/order' , orderRouter);
 router.use('/provider' , providerRouter);
-
+router.use("/admin" , adminRouter)
+router.use("/restaurant" , restaurantRouter)
 
 
 
