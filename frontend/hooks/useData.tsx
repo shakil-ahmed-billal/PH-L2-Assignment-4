@@ -11,7 +11,7 @@ export function useData() {
   useEffect(() => {
     const getAllData = async () => {
       const getCategory = await api.get("/api/cat/category");
-      const getMeal = await api.get("/api/meal");
+      const getMeal = await api.get("/api/meals");
       if (getMeal.success) {
         setMeal(getMeal.data as Meal[]);
       }
@@ -28,7 +28,7 @@ export function useData() {
       if (!id) {
         return [];
       }
-      const result = await api.get(`/api/meal/${id}`);
+      const result = await api.get(`/api/meals/${id}`);
       return result.data;
     } catch (err) {
       console.log(err);
