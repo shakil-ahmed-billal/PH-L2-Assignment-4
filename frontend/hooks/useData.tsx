@@ -61,17 +61,16 @@ export function useData() {
       setIsLoading(true);
 
       // Fetch categories
-      const categoryResult = await api.get("/api/categories");
-      if (categoryResult.success) {
-        setCategory(categoryResult.data as Category[]);
+      const categoryResult = await api.get<Category[]>("/api/categories");
+      if (categoryResult.success && categoryResult.data) {
+        setCategory(categoryResult.data);
       }
 
       // Fetch meals (get popular meals for homepage)
-      const mealResult = await api.get("/api/meals?limit=20&sort=popular");
-      if (mealResult.success) {
-        // The API returns { meals, total, page, limit, totalPages }
-        const mealsData = mealResult.data.meals || mealResult.data;
-        setMeal(mealsData as Meal[]);
+      const mealResult = await api.get<{ meals: Meal[]; total?: number }>("/api/meals?limit=20&sort=popular");
+      if (mealResult.success && mealResult.data) {
+        const mealsData = "meals" in mealResult.data ? mealResult.data.meals : [];
+        setMeal(mealsData);
       }
     } catch (err) {
       console.error("Error fetching data:", err);

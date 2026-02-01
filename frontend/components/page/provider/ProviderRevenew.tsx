@@ -49,11 +49,11 @@ const ProviderAnalytics = () => {
   const fetchRevenueAnalytics = async () => {
     try {
       setIsLoadingRevenue(true);
-      const result = await api.get(
+      const result = await api.get<RevenueAnalytics>(
         `/api/provider/analytics/${user?.id}/revenue?startDate=${dateRange.startDate}&endDate=${dateRange.endDate}`
       );
-      
-      if (result.success) {
+
+      if (result.success && result.data) {
         setRevenueData(result.data);
       } else {
         toast.error("Failed to load revenue analytics");
@@ -69,11 +69,11 @@ const ProviderAnalytics = () => {
   const fetchTopMeals = async () => {
     try {
       setIsLoadingMeals(true);
-      const result = await api.get(
+      const result = await api.get<TopMeal[]>(
         `/api/provider/analytics/${user?.id}/top-meals?limit=${limit}`
       );
-      
-      if (result.success) {
+
+      if (result.success && result.data) {
         setTopMeals(result.data);
       } else {
         toast.error("Failed to load top meals");

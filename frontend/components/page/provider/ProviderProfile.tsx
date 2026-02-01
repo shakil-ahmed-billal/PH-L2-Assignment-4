@@ -54,15 +54,16 @@ const ProviderProfilePage = () => {
   const fetchProfile = async () => {
     try {
       setIsLoading(true);
-      const result = await api.get(`/api/provider/profile/${user?.userId}`);
-      
-      if (result.success) {
-        setProfile(result.data);
+      const result = await api.get<ProviderProfile>(`/api/provider/profile/${user?.userId}`);
+
+      if (result.success && result.data) {
+        const data = result.data;
+        setProfile(data);
         setFormData({
-          restaurant: result.data.restaurant || "",
-          description: result.data.description || "",
-          address: result.data.address || "",
-          phone: result.data.phone || "",
+          restaurant: data.restaurant || "",
+          description: data.description || "",
+          address: data.address || "",
+          phone: data.phone || "",
         });
       } else {
         toast.error("Failed to load profile");
@@ -78,9 +79,9 @@ const ProviderProfilePage = () => {
   const handleSave = async () => {
     try {
       setIsSaving(true);
-      const result = await api.put(`/api/provider/profile/${user?.id}`, formData);
-      
-      if (result.success) {
+      const result = await api.put<ProviderProfile>(`/api/provider/profile/${user?.id}`, formData);
+
+      if (result.success && result.data) {
         setProfile(result.data);
         setIsEditing(false);
         toast.success("Profile updated successfully");
@@ -185,23 +186,23 @@ const ProviderProfilePage = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <Label className="text-muted-foreground">Name</Label>
-                <p className="font-medium text-foreground">{user.name}</p>
+                <p className="font-medium text-foreground">{user?.name ?? "—"}</p>
               </div>
               <div>
                 <Label className="text-muted-foreground">Email</Label>
-                <p className="font-medium text-foreground">{user.email}</p>
+                <p className="font-medium text-foreground">{user?.email ?? "—"}</p>
               </div>
               <div>
                 <Label className="text-muted-foreground">Role</Label>
-                <p className="font-medium text-foreground">{user.role || "N/A"}</p>
+                <p className="font-medium text-foreground">{user?.role ?? "N/A"}</p>
               </div>
               <div>
                 <Label className="text-muted-foreground">Status</Label>
-                <p className="font-medium text-foreground">{user.status || "N/A"}</p>
+                <p className="font-medium text-foreground">{user?.status ?? "N/A"}</p>
               </div>
               <div>
                 <Label className="text-muted-foreground">Member Since</Label>
-                <p className="font-medium text-foreground">{formatDate(user.createdAt)}</p>
+                <p className="font-medium text-foreground">{user?.createdAt ? formatDate(typeof user.createdAt === "string" ? user.createdAt : user.createdAt.toISOString()) : "—"}</p>
               </div>
             </div>
           </CardContent>

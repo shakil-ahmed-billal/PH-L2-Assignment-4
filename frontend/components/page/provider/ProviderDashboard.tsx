@@ -46,9 +46,9 @@ const ProviderDashboard = () => {
       const fetchDashboard = async () => {
         try {
           setIsLoading(true);
-          const result = await api.get(`/api/provider/dashboard/${user.id}`);
-          
-          if (result.success) {
+          const result = await api.get<DashboardData>(`/api/provider/dashboard/${user.id}`);
+
+          if (result.success && result.data) {
             setDashboardData(result.data);
           } else {
             toast.error("Failed to load dashboard");

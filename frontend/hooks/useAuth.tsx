@@ -60,15 +60,16 @@ export function useAuth() {
 
         if (authUser.role === "PROVIDER") {
           try {
-            const providerRes = await api.get(
+            const providerRes = await api.get<{ id: string; [key: string]: unknown }>(
               `/api/provider/profile/${authUser.id}`,
             );
 
-            if (providerRes?.success) {
+            if (providerRes?.success && providerRes.data) {
+              const providerData = providerRes.data;
               setUser({
                 ...authUser,
-                id: providerRes.data.id ,
-                providerProfile: providerRes.data,
+                id: providerData.id,
+                providerProfile: providerData,
                 userId: authUser.id
               });
             } else {
@@ -98,7 +99,6 @@ export function useAuth() {
         email: data.email,
         password: data.password,
         name: data.name,
-        role: data.role
       });
 
       if (result.error) {
@@ -152,15 +152,16 @@ export function useAuth() {
 
 
         if (authUser.role === "PROVIDER") {
-          const providerRes = await api.get(
+          const providerRes = await api.get<{ id: string; [key: string]: unknown }>(
             `/api/provider/profile/${authUser.id}`,
           );
 
-          if (providerRes?.success) {
+          if (providerRes?.success && providerRes.data) {
+            const providerData = providerRes.data;
             setUser({
               ...authUser,
-              providerId: providerRes.data.id,
-              providerProfile: providerRes.data,
+              providerId: providerData.id,
+              providerProfile: providerData,
             });
           } else {
             setUser(authUser);
