@@ -42,20 +42,20 @@ const ProfilePage = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [myOrder, setMyOrder] = useState<Order[]>([]);
   const [formData, setFormData] = useState({
-    name: user?.name || "",
-    email: user?.email || "",
-    phone: user?.phone || "",
-    address: "123 Main Street, New York, NY 10001",
+    name: user?.name ?? "",
+    email: user?.email ?? "",
+    phone: user?.phone ?? "",
+    address: user?.address ?? "123 Main Street, New York, NY 10001",
   });
 
   useEffect(() => {
     // Update form data when user changes
     if (user) {
       setFormData({
-        name: user.name || "",
-        email: user.email || "",
-        phone: user.phone || "",
-        address: user.address || "123 Main Street, New York, NY 10001",
+        name: user.name ?? "",
+        email: user.email ?? "",
+        phone: user.phone ?? "",
+        address: user.address ?? "123 Main Street, New York, NY 10001",
       });
     }
   }, [user]);
@@ -129,7 +129,7 @@ const ProfilePage = () => {
             <div className="flex flex-col sm:flex-row items-center gap-6">
               <div className="relative">
                 <img
-                  src={user.image || user.avatar || "https://images.unsplash.com/photo-1599566150163-29194dcabd36?w=100&h=100&fit=crop"}
+                  src={user.image ?? "https://images.unsplash.com/photo-1599566150163-29194dcabd36?w=100&h=100&fit=crop"}
                   alt={user.name || "User"}
                   className="h-24 w-24 rounded-full object-cover border-4 border-primary/20"
                 />

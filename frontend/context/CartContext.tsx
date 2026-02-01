@@ -1,11 +1,38 @@
 "use client";
 
 import React, { createContext, useContext, useState, useCallback, ReactNode } from "react";
-import { Meal, CartItem } from "@/lib/mockData";
+
+/** Minimal meal shape for cart (supports both API and mock Meal types) */
+export interface CartMeal {
+  id: string;
+  name: string;
+  price: number;
+  image?: string | null;
+  providerId?: string;
+  description?: string | null;
+  originalPrice?: number;
+  slug?: string;
+  categoryId?: string;
+  category?: string;
+  providerName?: string;
+  provider?: { name: string };
+  rating?: number;
+  reviewCount?: number;
+  prepTime?: string | null;
+  isVegetarian?: boolean;
+  isSpicy?: boolean;
+  isPopular?: boolean;
+  ingredients?: string[];
+}
+
+export interface CartItem {
+  meal: CartMeal;
+  quantity: number;
+}
 
 interface CartContextType {
   items: CartItem[];
-  addToCart: (meal: Meal, quantity?: number) => void;
+  addToCart: (meal: CartMeal, quantity?: number) => void;
   removeFromCart: (mealId: string) => void;
   updateQuantity: (mealId: string, quantity: number) => void;
   clearCart: () => void;
@@ -20,7 +47,7 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [items, setItems] = useState<CartItem[]>([]);
 
-  const addToCart = useCallback((meal: Meal, quantity: number = 1) => {
+  const addToCart = useCallback((meal: CartMeal, quantity: number = 1) => {
     setItems((prevItems) => {
       const existingItem = prevItems.find((item) => item.meal.id === meal.id);
       if (existingItem) {

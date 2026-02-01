@@ -73,7 +73,7 @@ const navigationData = {
           icon: Package,
           description: "Manage orders",
           badge: "5",
-          badgeVariant: "primary" as const,
+          badgeVariant: "default" as const,
         },
         {
           title: "Revenue",
@@ -158,7 +158,7 @@ export function ProviderSidebar({
         <div className="flex items-center gap-3 p-3 rounded-xl bg-gradient-to-br from-primary/5 to-primary/10 hover:from-primary/10 hover:to-primary/15 transition-all cursor-pointer group">
           <Avatar className="h-12 w-12 border-2 border-primary/20 ring-2 ring-primary/10">
             <AvatarImage
-              src={user?.image || user?.avatar}
+              src={user?.image ?? undefined}
               alt={user?.name || "Provider"}
             />
             <AvatarFallback className="bg-gradient-to-br from-primary to-primary/60 text-primary-foreground font-semibold">

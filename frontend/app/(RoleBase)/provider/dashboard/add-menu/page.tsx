@@ -47,7 +47,6 @@ interface MealFormData {
 
 const MenuCreateForm = () => {
   const router = useRouter();
-  const axiosPublic = useAxiosPublic();
   const [isLoading, setIsLoading] = useState(false);
   const [currentIngredient, setCurrentIngredient] = useState("");
   const [imagePreview, setImagePreview] = useState<string>("");
@@ -160,9 +159,15 @@ const MenuCreateForm = () => {
         return;
       }
 
+      if (!user) {
+        toast.error("Please sign in to add a meal.");
+        setIsLoading(false);
+        return;
+      }
+
       // Get category and provider names
       const category = categories.find((c) => c.id === formData.categoryId);
-      const provider = user.id;
+      const provider = user.providerId ?? user.id;
 
       // Prepare data for API
       const mealData = {
@@ -172,7 +177,7 @@ const MenuCreateForm = () => {
 
       // Submit to API
 
-      const response = await api.post(`/api/meal` , mealData)
+      const response = await api.post(`/api/meals` , mealData)
       console.log(response);
 
         if (response.data) {
@@ -187,7 +192,6 @@ const MenuCreateForm = () => {
             price: 0,
             originalPrice: undefined,
             categoryId: '',
-            providerId: '',
             calories: 0,
             prepTime: '',
             isVegetarian: false,

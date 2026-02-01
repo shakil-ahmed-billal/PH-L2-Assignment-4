@@ -37,24 +37,36 @@ export interface Restaurant {
   }
   
 export   interface Meal {
+  id: string;
+  name: string;
+  description: string | null;
+  price: number;
+  originalPrice: number;
+  image: string | null;
+  available: boolean;
+  slug: string;
+  calories: number | null;
+  prepTime: string | null;
+  isVegetarian: boolean;
+  isSpicy: boolean;
+  isPopular: boolean;
+  ingredients: string[];
+  providerId: string;
+  categoryId: string;
+  rating?: number;
+  reviewCount?: number;
+  category?: {
     id: string;
     name: string;
-    description: string;
-    price: number;
-    originalPrice: number;
-    image: string;
-    available: boolean;
     slug: string;
-    calories: number;
-    prepTime: string;
-    isVegetarian: boolean;
-    isSpicy: boolean;
-    isPopular: boolean;
-    ingredients: string[];
-    providerId: string;
-    categoryId: string;
-  }
-  
+    icon: string;
+  };
+  provider?: {
+    id: string;
+    name: string;
+    image: string;
+  };
+}
 export  interface Review {
     id: string;
     rating: number;
@@ -89,4 +101,13 @@ export  interface Review {
       userAgent?: string;
       ipAddress?: string;
     } | null;
+  }
+
+ export interface Category {
+    id: string;
+    name: string;
+    slug: string;
+    icon: string;
+    image: string;
+    mealCount: number;
   }

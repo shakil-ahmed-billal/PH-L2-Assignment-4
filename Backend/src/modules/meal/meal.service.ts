@@ -1,7 +1,174 @@
 import { prisma } from "../../../lib/prisma";
 
+interface MealFilters {
+  search?: string | undefined;
+  categoryId?: string | string[] | undefined;
+  isVegetarian?: boolean | undefined;
+  isSpicy?: boolean | undefined;
+  isPopular?: boolean | undefined;
+  minPrice?: number | undefined;
+  maxPrice?: number | undefined;
+  sort?: "popular" | "price-low" | "price-high" | "rating" | "newest" | undefined;
+  page?: number | undefined;
+  limit?: number | undefined;
+}
+
 /**
- * Get all meals with filters
+ * Get all meals with pagination and filters
+ */
+const getAllMealsWithPagination = async (filters: MealFilters) => {
+  try {
+    const {
+      search,
+      categoryId,
+      isVegetarian,
+      isSpicy,
+      isPopular,
+      minPrice,
+      maxPrice,
+      sort = "popular",
+      page = 1,
+      limit = 12,
+    } = filters;
+
+    // Build where clause
+    const where: any = {
+      available: true,
+    };
+
+    // Search filter
+    if (search) {
+      where.OR = [
+        { name: { contains: search, mode: "insensitive" } },
+        { description: { contains: search, mode: "insensitive" } },
+        { ingredients: { hasSome: [search] } },
+      ];
+    }
+
+    // Category filter
+    if (categoryId) {
+      if (Array.isArray(categoryId)) {
+        where.categoryId = { in: categoryId };
+      } else {
+        where.categoryId = categoryId;
+      }
+    }
+
+    // Dietary filters
+    if (isVegetarian !== undefined) {
+      where.isVegetarian = isVegetarian;
+    }
+
+    if (isSpicy !== undefined) {
+      where.isSpicy = isSpicy;
+    }
+
+    if (isPopular !== undefined) {
+      where.isPopular = isPopular;
+    }
+
+    // Price range filter
+    if (minPrice !== undefined || maxPrice !== undefined) {
+      where.price = {};
+      if (minPrice !== undefined) where.price.gte = minPrice;
+      if (maxPrice !== undefined) where.price.lte = maxPrice;
+    }
+
+    // Build orderBy clause
+    let orderBy: any = {};
+    switch (sort) {
+      case "price-low":
+        orderBy = { price: "asc" };
+        break;
+      case "price-high":
+        orderBy = { price: "desc" };
+        break;
+      case "rating":
+        // For rating, we'll need to calculate from reviews
+        orderBy = { createdAt: "desc" }; // Fallback for now
+        break;
+      case "newest":
+        orderBy = { createdAt: "desc" };
+        break;
+      case "popular":
+      default:
+        orderBy = { isPopular: "desc" };
+        break;
+    }
+
+    // Calculate skip for pagination
+    const skip = (page - 1) * limit;
+
+    // Get total count
+    const total = await prisma.meal.count({ where });
+
+    // Get meals with pagination
+    const meals = await prisma.meal.findMany({
+      where,
+      include: {
+        category: {
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+            icon: true,
+          },
+        },
+        provider: {
+          select: {
+            id: true,
+            name: true,
+            image: true,
+            rating: true,
+          },
+        },
+        _count: {
+          select: {
+            reviews: true,
+            orderItems: true,
+          },
+        },
+      },
+      orderBy,
+      skip,
+      take: limit,
+    });
+
+    // Calculate average rating for each meal
+    const mealsWithRatings = await Promise.all(
+      meals.map(async (meal) => {
+        const reviews = await prisma.review.findMany({
+          where: { mealId: meal.id },
+          select: { rating: true },
+        });
+
+        const avgRating = reviews.length > 0
+          ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length
+          : 0;
+
+        return {
+          ...meal,
+          rating: avgRating,
+          reviewCount: reviews.length,
+        };
+      })
+    );
+
+    return {
+      meals: mealsWithRatings,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    };
+  } catch (err) {
+    console.error("Error in getAllMealsWithPagination:", err);
+    throw new Error("Error fetching meals");
+  }
+};
+
+/**
+ * Get all meals (old function for backward compatibility)
  */
 const getAllMeals = async (filters?: {
   categoryId?: string;
@@ -13,80 +180,77 @@ const getAllMeals = async (filters?: {
   minPrice?: number;
   maxPrice?: number;
 }) => {
-
   try {
-    // const where: any = {
-    //   available: true,
-    // };
+    const where: any = {
+      available: true,
+    };
 
-    // if (filters?.categoryId) {
-    //   where.categoryId = filters.categoryId;
-    // }
+    if (filters?.categoryId) {
+      where.categoryId = filters.categoryId;
+    }
 
-    // if (filters?.providerId) {
-    //   where.providerId = filters.providerId;
-    // }
+    if (filters?.providerId) {
+      where.providerId = filters.providerId;
+    }
 
-    // if (filters?.isVegetarian !== undefined) {
-    //   where.isVegetarian = filters.isVegetarian;
-    // }
+    if (filters?.isVegetarian !== undefined) {
+      where.isVegetarian = filters.isVegetarian;
+    }
 
-    // if (filters?.isSpicy !== undefined) {
-    //   where.isSpicy = filters.isSpicy;
-    // }
+    if (filters?.isSpicy !== undefined) {
+      where.isSpicy = filters.isSpicy;
+    }
 
-    // if (filters?.isPopular !== undefined) {
-    //   where.isPopular = filters.isPopular;
-    // }
+    if (filters?.isPopular !== undefined) {
+      where.isPopular = filters.isPopular;
+    }
 
-    // if (filters?.search) {
-    //   where.OR = [
-    //     { name: { contains: filters.search, mode: "insensitive" } },
-    //     { description: { contains: filters.search, mode: "insensitive" } },
-    //   ];
-    // }
+    if (filters?.search) {
+      where.OR = [
+        { name: { contains: filters.search, mode: "insensitive" } },
+        { description: { contains: filters.search, mode: "insensitive" } },
+      ];
+    }
 
-    // if (filters?.minPrice || filters?.maxPrice) {
-    //   where.price = {};
-    //   if (filters.minPrice) where.price.gte = filters.minPrice;
-    //   if (filters.maxPrice) where.price.lte = filters.maxPrice;
-    // }
+    if (filters?.minPrice || filters?.maxPrice) {
+      where.price = {};
+      if (filters.minPrice) where.price.gte = filters.minPrice;
+      if (filters.maxPrice) where.price.lte = filters.maxPrice;
+    }
 
-    const meals = await prisma.meal.findMany();
+    const meals = await prisma.meal.findMany({
+      where,
+      include: {
+        category: {
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+            icon: true,
+          },
+        },
+        provider: {
+          select: {
+            id: true,
+            name: true,
+            image: true,
+            rating: true,
+            address: true,
+          },
+        },
+        _count: {
+          select: {
+            reviews: true,
+            orderItems: true,
+          },
+        },
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
 
-    // {
-    //   where,
-    //   include: {
-    //     category: {
-    //       select: {
-    //         id: true,
-    //         name: true,
-    //         slug: true,
-    //         icon: true,
-    //       },
-    //     },
-    //     provider: {
-    //       select: {
-    //         id: true,
-    //         name: true,
-    //         image: true,
-    //         rating: true,
-    //         address: true,
-    //       },
-    //     },
-    //     _count: {
-    //       select: {
-    //         reviews: true,
-    //         orderItems: true,
-    //       },
-    //     },
-    //   },
-    //   orderBy: {
-    //     createdAt: "desc",
-    //   },
-    // }
-
-    return meals
+    return meals;
   } catch (err) {
     throw new Error("Error fetching meals");
   }
@@ -137,7 +301,23 @@ const getMealById = async (mealId: string) => {
       },
     });
 
-    return meal;
+    if (!meal) return null;
+
+    // Get average rating
+    const reviews = await prisma.review.findMany({
+      where: { mealId: meal.id },
+      select: { rating: true },
+    });
+
+    const avgRating = reviews.length > 0
+      ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length
+      : 0;
+
+    return {
+      ...meal,
+      rating: avgRating,
+      reviewCount: reviews.length,
+    };
   } catch (err) {
     throw new Error("Error fetching meal details");
   }
@@ -185,7 +365,6 @@ const getRelatedMeals = async (mealId: string) => {
   }
 
   try {
-    // First, get the meal to find its provider
     const meal = await prisma.meal.findUnique({
       where: { id: mealId },
       select: { providerId: true },
@@ -195,7 +374,6 @@ const getRelatedMeals = async (mealId: string) => {
       throw new Error("Meal not found");
     }
 
-    // Then get other meals from the same provider
     const relatedMeals = await prisma.meal.findMany({
       where: {
         providerId: meal.providerId,
@@ -321,7 +499,6 @@ const deleteMeal = async (mealId: string) => {
   }
 
   try {
-    // Soft delete - just mark as unavailable
     const deletedMeal = await prisma.meal.update({
       where: {
         id: mealId,
@@ -368,6 +545,7 @@ const addMealReview = async (data: {
 
 export const mealService = {
   getAllMeals,
+  getAllMealsWithPagination,
   getMealById,
   getMealReviews,
   getRelatedMeals,

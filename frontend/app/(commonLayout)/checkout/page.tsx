@@ -41,11 +41,20 @@ const CheckoutPage = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!user) {
+      toast.error("Please sign in to place an order");
+      return;
+    }
+    const providerId = items[0]?.meal.providerId;
+    if (!providerId) {
+      toast.error("Cart is invalid: missing provider information.");
+      return;
+    }
     setIsSubmitting(true);
 
     const orderData = {
       customerId: user.id,
-      providerId: items[0].meal.providerId, // Assuming all items belong to the same provider
+      providerId,
       totalPrice: items.reduce(
         (total, item) => total + item.quantity * item.meal.price,
         0
@@ -234,9 +243,9 @@ const CheckoutPage = () => {
                 {items.map((item) => (
                   <div key={item.meal.id} className="flex gap-3">
                     <img
-                      src={item.meal.image}
-                      alt={item.meal.name}
-                      className="h-12 w-12 rounded-lg object-cover"
+src={item.meal.image ?? ""}
+                       alt={item.meal.name}
+                       className="h-12 w-12 rounded-lg object-cover"
                     />
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-foreground line-clamp-1">

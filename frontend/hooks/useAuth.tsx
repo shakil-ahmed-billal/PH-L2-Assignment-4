@@ -10,10 +10,15 @@ interface AuthUser {
   id: string;
   name?: string;
   email: string;
+  image?: string | null;
+  phone?: string;
+  address?: string;
+  status?: string;
+  createdAt?: string | Date;
   role?: "USER" | "PROVIDER" | "ADMIN";
   providerId?: string;
   providerProfile?: any;
-  userId?: any ;
+  userId?: any;
 }
 
 interface SignUpData {

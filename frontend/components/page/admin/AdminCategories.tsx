@@ -90,13 +90,14 @@ const AdminCategories = () => {
 
     try {
       setIsSaving(true);
-      const result = await api.post("/api/admin/categories", formData);
+      const result = await api.post<Category>("/api/admin/categories", formData);
 
-      if (result.success) {
-        setCategoryList((prev) => [...prev, result.data]);
+      if (result.success && result.data) {
+        const newCategory = result.data;
+        setCategoryList((prev) => [...prev, newCategory]);
         resetForm();
         setIsAddDialogOpen(false);
-        toast.success(`${result.data.name} has been added successfully.`);
+        toast.success(`${newCategory.name} has been added successfully.`);
       } else {
         toast.error("Failed to add category");
       }

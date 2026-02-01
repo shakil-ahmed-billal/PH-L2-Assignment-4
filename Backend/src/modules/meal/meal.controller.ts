@@ -1,26 +1,54 @@
 import { Request, Response } from "express";
 import { mealService } from "./meal.service";
 
-
+/**
+ * Get all meals with pagination and filters
+ * GET /api/meals
+ */
 const getAllMeals = async (req: Request, res: Response) => {
   try {
+    // Extract query parameters
+    const search = req.query.search as string;
+    const sort = req.query.sort as "popular" | "price-low" | "price-high" | "rating" | "newest";
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 12;
+
+    // Category can be single or multiple
+    let categoryId: string | string[] | undefined;
+    if (req.query.categoryId) {
+      categoryId = Array.isArray(req.query.categoryId)
+        ? (req.query.categoryId as string[])
+        : [req.query.categoryId as string];
+    }
+
+    // Boolean filters
+    const isVegetarian = req.query.isVegetarian === "true" ? true : undefined;
+    const isSpicy = req.query.isSpicy === "true" ? true : undefined;
+    const isPopular = req.query.isPopular === "true" ? true : undefined;
+
+    // Price filters
+    const minPrice = req.query.minPrice ? parseFloat(req.query.minPrice as string) : undefined;
+    const maxPrice = req.query.maxPrice ? parseFloat(req.query.maxPrice as string) : undefined;
+
     const filters = {
-      categoryId: req.query.categoryId as string,
-      providerId: req.query.providerId as string,
-      isVegetarian: req.query.isVegetarian === "true",
-      isSpicy: req.query.isSpicy === "true",
-      isPopular: req.query.isPopular === "true",
-      search: req.query.search as string,
-      minPrice: req.query.minPrice ? parseFloat(req.query.minPrice as string) : undefined,
-      maxPrice: req.query.maxPrice ? parseFloat(req.query.maxPrice as string) : undefined,
+      search,
+      categoryId,
+      isVegetarian,
+      isSpicy,
+      isPopular,
+      minPrice,
+      maxPrice,
+      sort,
+      page,
+      limit,
     };
 
-    const meals = await mealService.getAllMeals(filters as any);
+    const result = await mealService.getAllMealsWithPagination(filters);
 
     res.status(200).send({
       success: true,
       message: "Meals fetched successfully",
-      data: meals,
+      data: result,
     });
   } catch (error: any) {
     res.status(500).send({
@@ -31,9 +59,12 @@ const getAllMeals = async (req: Request, res: Response) => {
   }
 };
 
-
+/**
+ * Get meal by ID
+ * GET /api/meals/:id
+ */
 const getMealById = async (req: Request, res: Response) => {
-  const { id } = req.params;
+  const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
 
   if (!id) {
     return res.status(400).send({
@@ -44,7 +75,7 @@ const getMealById = async (req: Request, res: Response) => {
   }
 
   try {
-    const meal = await mealService.getMealById(id as any);
+    const meal = await mealService.getMealById(id);
 
     if (!meal) {
       return res.status(404).send({
@@ -68,9 +99,12 @@ const getMealById = async (req: Request, res: Response) => {
   }
 };
 
-
+/**
+ * Get reviews for a meal
+ * GET /api/meals/:id/reviews
+ */
 const getMealReviews = async (req: Request, res: Response) => {
-  const { id } = req.params;
+  const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
 
   if (!id) {
     return res.status(400).send({
@@ -81,7 +115,7 @@ const getMealReviews = async (req: Request, res: Response) => {
   }
 
   try {
-    const reviews = await mealService.getMealReviews(id as any);
+    const reviews = await mealService.getMealReviews(id);
 
     res.status(200).send({
       success: true,
@@ -97,9 +131,12 @@ const getMealReviews = async (req: Request, res: Response) => {
   }
 };
 
-
+/**
+ * Get related meals
+ * GET /api/meals/:id/related
+ */
 const getRelatedMeals = async (req: Request, res: Response) => {
-  const { id } = req.params;
+  const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
 
   if (!id) {
     return res.status(400).send({
@@ -110,7 +147,7 @@ const getRelatedMeals = async (req: Request, res: Response) => {
   }
 
   try {
-    const relatedMeals = await mealService.getRelatedMeals(id as any);
+    const relatedMeals = await mealService.getRelatedMeals(id);
 
     res.status(200).send({
       success: true,
@@ -126,6 +163,10 @@ const getRelatedMeals = async (req: Request, res: Response) => {
   }
 };
 
+/**
+ * Create a new meal
+ * POST /api/meals
+ */
 const createMeal = async (req: Request, res: Response) => {
   const mealData = req.body;
 
@@ -155,9 +196,12 @@ const createMeal = async (req: Request, res: Response) => {
   }
 };
 
-
+/**
+ * Update a meal
+ * PATCH /api/meals/:id
+ */
 const updateMeal = async (req: Request, res: Response) => {
-  const { id } = req.params;
+  const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
   const updateData = req.body;
 
   if (!id) {
@@ -169,7 +213,7 @@ const updateMeal = async (req: Request, res: Response) => {
   }
 
   try {
-    const updatedMeal = await mealService.updateMeal(id as any, updateData);
+    const updatedMeal = await mealService.updateMeal(id, updateData);
 
     res.status(200).send({
       success: true,
@@ -185,9 +229,12 @@ const updateMeal = async (req: Request, res: Response) => {
   }
 };
 
-
+/**
+ * Delete a meal (soft delete)
+ * DELETE /api/meals/:id
+ */
 const deleteMeal = async (req: Request, res: Response) => {
-  const { id } = req.params;
+  const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
 
   if (!id) {
     return res.status(400).send({
@@ -198,7 +245,7 @@ const deleteMeal = async (req: Request, res: Response) => {
   }
 
   try {
-    await mealService.deleteMeal(id as any);
+    await mealService.deleteMeal(id);
 
     res.status(200).send({
       success: true,
@@ -214,9 +261,12 @@ const deleteMeal = async (req: Request, res: Response) => {
   }
 };
 
-
+/**
+ * Add review to meal
+ * POST /api/meals/:id/reviews
+ */
 const addMealReview = async (req: Request, res: Response) => {
-  const { id } = req.params;
+  const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
   const { userId, rating, comment } = req.body;
 
   if (!id || !userId || !rating) {
@@ -237,7 +287,7 @@ const addMealReview = async (req: Request, res: Response) => {
 
   try {
     const review = await mealService.addMealReview({
-      mealId: id as any,
+      mealId: id,
       userId,
       rating,
       comment,

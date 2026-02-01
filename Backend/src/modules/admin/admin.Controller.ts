@@ -51,13 +51,13 @@ const getAllUsers = async (req: Request, res: Response) => {
  */
 const updateUserStatus = async (req: Request, res: Response) => {
   try {
-    const userId = req.params.userId;
+    const userId = Array.isArray(req.params.userId) ? req.params.userId[0] : req.params.userId;
     const { status } = req.body;
 
-    if (!status) {
+    if (!userId || !status) {
       return res.status(400).json({
         success: false,
-        message: "Status is required",
+        message: "User ID and status are required",
       });
     }
 
@@ -157,8 +157,15 @@ const createCategory = async (req: Request, res: Response) => {
  */
 const updateCategory = async (req: Request, res: Response) => {
   try {
-    const categoryId = req.params.categoryId;
+    const categoryId = Array.isArray(req.params.categoryId) ? req.params.categoryId[0] : req.params.categoryId;
     const categoryData = req.body;
+
+    if (!categoryId) {
+      return res.status(400).json({
+        success: false,
+        message: "Category ID is required",
+      });
+    }
 
     const category = await adminService.updateCategory(categoryId, categoryData);
     res.status(200).json({
@@ -181,7 +188,13 @@ const updateCategory = async (req: Request, res: Response) => {
  */
 const deleteCategory = async (req: Request, res: Response) => {
   try {
-    const categoryId = req.params.categoryId;
+    const categoryId = Array.isArray(req.params.categoryId) ? req.params.categoryId[0] : req.params.categoryId;
+    if (!categoryId) {
+      return res.status(400).json({
+        success: false,
+        message: "Category ID is required",
+      });
+    }
     const result = await adminService.deleteCategory(categoryId);
     res.status(200).json({
       success: true,

@@ -62,7 +62,7 @@ export function RegisterForm({ ...props }: React.ComponentProps<typeof Card>) {
           name: value.name,
           email: value.email,
           password: value.password,
-          role: value.userType.toUpperCase(),
+          role: value.userType.toUpperCase() as "PROVIDER" | "USER",
         });
 
         console.log(data);

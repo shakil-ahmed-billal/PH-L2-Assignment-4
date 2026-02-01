@@ -485,14 +485,14 @@ export const createMeal = async (mealData: {
       data: {
         name: mealData.name,
         slug: slug,
-        description: mealData.description,
+        description: mealData.description ?? null,
         price: mealData.price,
         originalPrice: mealData.originalPrice || 0,
-        image: mealData.image,
+        image: mealData.image ?? null,
         categoryId: mealData.categoryId,
         providerId: mealData.providerId,
-        calories: mealData.calories,
-        prepTime: mealData.prepTime || "15-20 min",
+        calories: mealData.calories ?? null,
+        prepTime: mealData.prepTime ?? null,
         isVegetarian: mealData.isVegetarian || false,
         isSpicy: mealData.isSpicy || false,
         isPopular: mealData.isPopular || false,
@@ -509,6 +509,7 @@ export const createMeal = async (mealData: {
       },
     });
 
+    const mealWithRelations = meal as typeof meal & { category: { name: string }; provider: { restaurant: string | null } };
     return {
       id: meal.id,
       name: meal.name,
@@ -517,10 +518,10 @@ export const createMeal = async (mealData: {
       image: meal.image || "",
       price: meal.price,
       originalPrice: Number(meal.originalPrice),
-      category: meal.category.name,
+      category: mealWithRelations.category.name,
       categoryId: meal.categoryId,
       providerId: meal.providerId,
-      providerName: meal.provider.restaurant || "Unknown",
+      providerName: mealWithRelations.provider.restaurant || "Unknown",
       rating: 0,
       reviewCount: 0,
       calories: meal.calories || 0,
@@ -1114,11 +1115,11 @@ export const getRevenueAnalytics = async (
 
     // Group by date
     const revenueByDate = orders.reduce((acc, order) => {
-      const date = order.createdAt.toISOString().split("T")[0];
-      if (!acc[date]) {
-        acc[date] = 0;
+      const date = order.createdAt.toISOString().split("T")[0] ?? "";
+      if (date) {
+        const current = acc[date] ?? 0;
+        acc[date] = current + order.totalPrice;
       }
-      acc[date] += order.totalPrice;
       return acc;
     }, {} as Record<string, number>);
 
