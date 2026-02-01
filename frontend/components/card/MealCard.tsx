@@ -2,14 +2,31 @@
 
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/context/CartContext";
-import { Meal } from "@/lib/mockData";
 import { cn } from "@/lib/utils";
 import { Clock, Plus, Star } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
 
+/** Accepts both API meal shape (provider, rating?) and mock shape (providerName, rating) */
+type MealCardMeal = {
+  id: string;
+  name: string;
+  description?: string | null;
+  image?: string | null;
+  price: number;
+  originalPrice?: number;
+  prepTime?: string | null;
+  isVegetarian?: boolean;
+  isSpicy?: boolean;
+  isPopular?: boolean;
+  providerName?: string;
+  provider?: { name: string };
+  rating?: number;
+  reviewCount?: number;
+};
+
 interface MealCardProps extends React.HTMLAttributes<HTMLAnchorElement> {
-  meal: Meal;
+  meal: MealCardMeal;
 }
 
 const MealCard = ({ meal, className, ...props }: MealCardProps) => {
@@ -35,7 +52,7 @@ const MealCard = ({ meal, className, ...props }: MealCardProps) => {
       {/* Image */}
       <div className="relative aspect-[4/3] overflow-hidden">
         <img
-          src={meal.image}
+          src={meal.image ?? ""}
           alt={meal.name}
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
         />
@@ -84,24 +101,26 @@ const MealCard = ({ meal, className, ...props }: MealCardProps) => {
             <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-1">
               {meal.name}
             </h3>
-            <p className="text-sm text-muted-foreground">{meal.providerName}</p>
+            <p className="text-sm text-muted-foreground">{meal.providerName ?? meal.provider?.name ?? ""}</p>
           </div>
         </div>
 
         <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
-          {meal.description}
+          {meal.description ?? ""}
         </p>
 
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3 text-sm text-muted-foreground">
             <span className="flex items-center gap-1">
               <Star className="h-4 w-4 fill-accent text-accent" />
-              <span className="font-medium text-foreground">{meal.rating}</span>
+              <span className="font-medium text-foreground">{meal.rating ?? 0}</span>
             </span>
-            <span className="flex items-center gap-1">
-              <Clock className="h-4 w-4" />
-              {meal.prepTime}
-            </span>
+            {(meal.prepTime ?? "").length > 0 && (
+              <span className="flex items-center gap-1">
+                <Clock className="h-4 w-4" />
+                {meal.prepTime}
+              </span>
+            )}
           </div>
 
           <div className="flex items-center gap-2">

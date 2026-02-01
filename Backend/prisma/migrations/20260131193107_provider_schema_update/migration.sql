@@ -1,0 +1,12 @@
+-- AlterTable
+ALTER TABLE "ProviderProfile" ADD COLUMN     "coverImage" TEXT,
+ADD COLUMN     "cuisine" TEXT[] DEFAULT ARRAY['']::TEXT[],
+ADD COLUMN     "deliveryFee" INTEGER NOT NULL DEFAULT 2,
+ADD COLUMN     "deliveryTime" TEXT NOT NULL DEFAULT '25-35 min',
+ADD COLUMN     "image" TEXT,
+ADD COLUMN     "isOpen" BOOLEAN NOT NULL DEFAULT true,
+ADD COLUMN     "minOrder" INTEGER NOT NULL DEFAULT 0,
+ADD COLUMN     "name" TEXT,
+ADD COLUMN     "rating" INTEGER NOT NULL DEFAULT 0,
+ADD COLUMN     "reviewCount" INTEGER NOT NULL DEFAULT 0,
+ADD COLUMN     "slug" TEXT;

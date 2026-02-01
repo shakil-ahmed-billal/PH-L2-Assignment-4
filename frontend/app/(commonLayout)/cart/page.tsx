@@ -77,7 +77,7 @@ const CartPage = () => {
                 {/* Image */}
                 <Link href={`/meals/${item.meal.id}`} className="flex-shrink-0">
                   <img
-                    src={item.meal.image}
+                    src={item.meal.image ?? ""}
                     alt={item.meal.name}
                     className="h-24 w-24 md:h-32 md:w-32 rounded-xl object-cover"
                   />

@@ -6,9 +6,108 @@ export interface OrderItem {
 
 export interface Order {
     id: string;
-    date: string; // Or Date if you want to use JavaScript Date objects
-    status: string; // Enum can be used for predefined statuses
+    date: string; 
+    status: string; 
     total: number;
     items: OrderItem[];
     provider: string;
+    userName?: string;
 }
+
+
+export interface Restaurant {
+    id: string;
+    userId: string;
+    name: string;
+    slug: string;
+    description: string;
+    image: string;
+    coverImage: string;
+    rating: number;
+    reviewCount: number;
+    deliveryTime: string;
+    deliveryFee: number;
+    minOrder: number;
+    cuisine: string[];
+    isOpen: boolean;
+    address: string;
+    restaurant: string;
+    phone: string;
+    createdAt: string;
+  }
+  
+export   interface Meal {
+  id: string;
+  name: string;
+  description: string | null;
+  price: number;
+  originalPrice: number;
+  image: string | null;
+  available: boolean;
+  slug: string;
+  calories: number | null;
+  prepTime: string | null;
+  isVegetarian: boolean;
+  isSpicy: boolean;
+  isPopular: boolean;
+  ingredients: string[];
+  providerId: string;
+  categoryId: string;
+  rating?: number;
+  reviewCount?: number;
+  category?: {
+    id: string;
+    name: string;
+    slug: string;
+    icon: string;
+  };
+  provider?: {
+    id: string;
+    name: string;
+    image: string;
+  };
+}
+export  interface Review {
+    id: string;
+    rating: number;
+    comment: string;
+    userId: string;
+    mealId: string;
+    createdAt: string;
+    user: {
+      name: string;
+      image: string;
+    };
+  }
+
+
+  export interface User {
+    id: string;
+    createdAt: Date;
+    updatedAt: Date;
+    email: string;
+    emailVerified: boolean;
+    name: string;
+    image?: string | null;
+  }
+  
+  export interface SessionResponse {
+    user: User | null; 
+    session: {
+      id: string;
+      createdAt: Date;
+      updatedAt: Date;
+      expiresAt: Date;
+      userAgent?: string;
+      ipAddress?: string;
+    } | null;
+  }
+
+ export interface Category {
+    id: string;
+    name: string;
+    slug: string;
+    icon: string;
+    image: string;
+    mealCount: number;
+  }

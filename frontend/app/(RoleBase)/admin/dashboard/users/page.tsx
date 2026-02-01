@@ -1,9 +1,10 @@
 import AdminDashboard from "@/components/page/admin/AdminDashboard";
+import AdminUsers from "@/components/page/admin/AdminUsers";
 
 const page = () => {
   return (
     <div>
-      <AdminDashboard />
+      <AdminUsers />
     </div>
   );
 };

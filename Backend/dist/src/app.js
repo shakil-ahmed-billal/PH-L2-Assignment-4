@@ -1,0 +1,27 @@
+import { auth } from './../lib/auth';
+import express from "express";
+import { toNodeHandler } from "better-auth/node";
+import morgan from 'morgan';
+import cors from 'cors';
+import dotenv from 'dotenv';
+import router from "./router";
+import envConfig from "./config/envConfig";
+dotenv.config();
+const app = express();
+app.use(cors({
+    origin: envConfig.CLIENT_URL || "http://localhost:3000",
+    credentials: true
+}));
+app.use(express.json());
+app.use(morgan("dev"));
+app.use("/api", router);
+app.all("/api/auth/*splat", toNodeHandler(auth));
+app.get('/', (req, res) => {
+    res.set('Cache-Control', 'no-store');
+    res.json({
+        status: "ok new",
+        timestamp: new Date().toISOString()
+    });
+});
+export default app;
+//# sourceMappingURL=app.js.map

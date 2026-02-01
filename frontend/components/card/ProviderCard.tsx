@@ -65,7 +65,7 @@ const ProviderCard = ({ provider, className, ...props }: ProviderCardProps) => {
           {provider.description}
         </p>
 
-        <div className="flex flex-wrap gap-1.5 mb-3">
+        {/* <div className="flex flex-wrap gap-1.5 mb-3">
           {provider.cuisine.slice(0, 3).map((tag) => (
             <span
               key={tag}
@@ -74,7 +74,7 @@ const ProviderCard = ({ provider, className, ...props }: ProviderCardProps) => {
               {tag}
             </span>
           ))}
-        </div>
+        </div> */}
 
         <div className="flex items-center gap-4 text-sm text-muted-foreground pt-3 border-t border-border">
           <span className="flex items-center gap-1">
@@ -83,7 +83,7 @@ const ProviderCard = ({ provider, className, ...props }: ProviderCardProps) => {
           </span>
           <span className="flex items-center gap-1">
             <MapPin className="h-4 w-4" />
-            ${provider.deliveryFee.toFixed(2)} delivery
+            ${provider.deliveryFee} delivery
           </span>
         </div>
       </div>

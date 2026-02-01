@@ -22,6 +22,7 @@ import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/hooks/useAuth";
 import useAxiosPublic from "@/hooks/useAxiosPublic";
+import { api } from "@/lib/api";
 import { categories } from "@/lib/mockData";
 import { Check, Loader2, Plus, X } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -46,7 +47,6 @@ interface MealFormData {
 
 const MenuCreateForm = () => {
   const router = useRouter();
-  const axiosPublic = useAxiosPublic();
   const [isLoading, setIsLoading] = useState(false);
   const [currentIngredient, setCurrentIngredient] = useState("");
   const [imagePreview, setImagePreview] = useState<string>("");
@@ -159,9 +159,15 @@ const MenuCreateForm = () => {
         return;
       }
 
+      if (!user) {
+        toast.error("Please sign in to add a meal.");
+        setIsLoading(false);
+        return;
+      }
+
       // Get category and provider names
       const category = categories.find((c) => c.id === formData.categoryId);
-      const provider = user.id;
+      const provider = user.providerId ?? user.id;
 
       // Prepare data for API
       const mealData = {
@@ -171,35 +177,34 @@ const MenuCreateForm = () => {
 
       // Submit to API
 
+      const response = await api.post(`/api/meals` , mealData)
+      console.log(response);
 
-      console.log(mealData);
+        if (response.data) {
+          toast('Meal has been created successfully.');
 
-      //   if (response.data) {
-      //     toast('Meal has been created successfully.');
+          // Reset form
+          setFormData({
+            name: '',
+            slug: '',
+            description: '',
+            image: '',
+            price: 0,
+            originalPrice: undefined,
+            categoryId: '',
+            calories: 0,
+            prepTime: '',
+            isVegetarian: false,
+            isSpicy: false,
+            isPopular: false,
+            ingredients: [],
+          });
+          setImagePreview('');
 
-      //     // Reset form
-      //     setFormData({
-      //       name: '',
-      //       slug: '',
-      //       description: '',
-      //       image: '',
-      //       price: 0,
-      //       originalPrice: undefined,
-      //       categoryId: '',
-      //       providerId: '',
-      //       calories: 0,
-      //       prepTime: '',
-      //       isVegetarian: false,
-      //       isSpicy: false,
-      //       isPopular: false,
-      //       ingredients: [],
-      //     });
-      //     setImagePreview('');
+          // Redirect to menu page or stay on form
+          // router.push('/provider/menu');
 
-      //     // Redirect to menu page or stay on form
-      //     // router.push('/provider/menu');
-
-      //   }
+        }
     } catch (error: any) {
       console.error("Error creating meal:", error);
       toast("Failed to create meal. Please try again.");

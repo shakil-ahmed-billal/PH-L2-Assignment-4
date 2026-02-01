@@ -18,7 +18,8 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
-import { Bell, Search } from "lucide-react";
+import { Bell, Home, Search } from "lucide-react";
+import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 // Helper function to generate breadcrumbs from pathname
@@ -81,6 +82,10 @@ export default function DashboardLayout({
               </BreadcrumbList>
             </Breadcrumb>
           </div>
+
+          <Link href={"/"}>
+         <Button variant={"outline"} className="rounded-full"><Home/></Button>
+         </Link>
 
           {/* Right Side Actions */}
           <div className="flex items-center gap-2">
