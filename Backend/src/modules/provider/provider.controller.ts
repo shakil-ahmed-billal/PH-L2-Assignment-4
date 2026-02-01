@@ -51,31 +51,6 @@ const getOrderByProviderId = async (req: Request, res: Response) => {
 };
 
 /**
- * Get all meals for a provider
- * GET /api/provider/meals/:id
- */
-const getProviderMealById = async (req: Request, res: Response) => {
-  try {
-    const providerId = req.params.id;
-    const meals = await providerService.getMealsByProviderId(
-      providerId as string
-    );
-
-    res.status(200).json({
-      success: true,
-      message: "Provider meals retrieved successfully",
-      data: meals,
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: "Server Error",
-      error: error,
-    });
-  }
-};
-
-/**
  * Get provider dashboard overview
  * GET /api/provider/dashboard/:id
  */
@@ -376,7 +351,6 @@ export const providerController = {
   cancelOrder,
 
   // Meals
-  getProviderMealById,
   createMeal,
   updateMeal,
   deleteMeal,

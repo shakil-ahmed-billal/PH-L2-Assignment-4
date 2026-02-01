@@ -9,7 +9,6 @@ export declare const providerController: {
     getOrderByProviderId: (req: Request, res: Response) => Promise<void>;
     updateOrderStatus: (req: Request, res: Response) => Promise<Response<any, Record<string, any>> | undefined>;
     cancelOrder: (req: Request, res: Response) => Promise<void>;
-    getProviderMealById: (req: Request, res: Response) => Promise<void>;
     createMeal: (req: Request, res: Response) => Promise<Response<any, Record<string, any>> | undefined>;
     updateMeal: (req: Request, res: Response) => Promise<void>;
     deleteMeal: (req: Request, res: Response) => Promise<void>;

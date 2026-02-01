@@ -17,7 +17,6 @@ router.put('/orders/:orderId/status', providerController.updateOrderStatus);
 router.put('/orders/:orderId/cancel', providerController.cancelOrder);
 
 // Meals
-router.get('/meals/:id', providerController.getProviderMealById);
 router.post('/meals', providerController.createMeal);
 router.put('/meals/:mealId', providerController.updateMeal);
 router.delete('/meals/:mealId', providerController.deleteMeal);
