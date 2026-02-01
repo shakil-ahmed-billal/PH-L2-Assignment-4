@@ -24,11 +24,17 @@ const PopularMealSection = () => {
       setIsLoading(true);
       
       // Fetch popular meals from API
-      const result = await api.get("/api/meals?limit=8&sort=popular&isPopular=true");
-      
-      if (result.success) {
-        const mealsData = result.data.meals || result.data;
-        setPopularMeals(mealsData as Meal[]);
+      const result = await api.get<{ meals: Meal[]; total?: number } | Meal[]>(
+        "/api/meals?limit=8&sort=popular&isPopular=true"
+      );
+
+      if (result.success && result.data) {
+        const mealsData = Array.isArray(result.data)
+          ? result.data
+          : "meals" in result.data
+            ? result.data.meals
+            : [];
+        setPopularMeals(mealsData);
       }
     } catch (error) {
       console.error("Error fetching popular meals:", error);

@@ -117,11 +117,12 @@ const AdminCategories = () => {
 
     try {
       setIsSaving(true);
-      const result = await api.put(`/api/admin/categories/${editingCategory.id}`, formData);
+      const result = await api.put<Category>(`/api/admin/categories/${editingCategory.id}`, formData);
 
-      if (result.success) {
+      if (result.success && result.data) {
+        const updated = result.data;
         setCategoryList((prev) =>
-          prev.map((cat) => (cat.id === editingCategory.id ? result.data : cat))
+          prev.map((cat) => (cat.id === editingCategory.id ? updated : cat))
         );
         setEditingCategory(null);
         resetForm();

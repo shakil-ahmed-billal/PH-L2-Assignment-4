@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { Suspense, useState, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Search, Filter, X, Sparkles, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -28,14 +28,11 @@ import { api } from "@/lib/api";
 import { toast } from "sonner";
 import { Category, Meal } from "@/types";
 
-
-
-
 type SortOption = "popular" | "price-low" | "price-high" | "rating" | "newest";
 
 const ITEMS_PER_PAGE = 12;
 
-export default function MealsPage() {
+function MealsPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   
@@ -626,5 +623,25 @@ export default function MealsPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function MealsPage() {
+  return (
+    <Suspense fallback={
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex gap-4 mb-8">
+          <Skeleton className="h-10 flex-1 max-w-md" />
+          <Skeleton className="h-10 w-24" />
+        </div>
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {Array.from({ length: 8 }).map((_, i) => (
+            <Skeleton key={i} className="aspect-[4/3] rounded-2xl" />
+          ))}
+        </div>
+      </div>
+    }>
+      <MealsPageContent />
+    </Suspense>
   );
 }

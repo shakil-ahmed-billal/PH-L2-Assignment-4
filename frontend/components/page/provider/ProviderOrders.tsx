@@ -98,7 +98,7 @@ const ProviderOrders = () => {
         setProviderOrders((prev) =>
           prev.map((order) =>
             order.id === orderId
-              ? { ...order, status: "cancelled", updatedAt: new Date().toISOString() }
+              ? { ...order, status: "CANCELLED", updatedAt: new Date().toISOString() }
               : order
           )
         );
