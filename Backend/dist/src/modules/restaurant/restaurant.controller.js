@@ -116,71 +116,10 @@ const getRestaurantReviews = async (req, res) => {
         });
     }
 };
-/**
- * Update restaurant profile
- * PATCH /api/restaurant/:id
- */
-const updateRestaurant = async (req, res) => {
-    const { id } = req.params;
-    const updateData = req.body;
-    if (!id) {
-        return res.status(400).send({
-            success: false,
-            message: "Restaurant ID is required",
-            data: null,
-        });
-    }
-    try {
-        const updatedRestaurant = await restaurantService.updateRestaurant(id, updateData);
-        res.status(200).send({
-            success: true,
-            message: "Restaurant updated successfully",
-            data: updatedRestaurant,
-        });
-    }
-    catch (error) {
-        res.status(500).send({
-            success: false,
-            message: "Failed to update restaurant",
-            error: error.message || error,
-        });
-    }
-};
-/**
- * Get restaurant statistics
- * GET /api/restaurant/:id/stats
- */
-const getRestaurantStats = async (req, res) => {
-    const { id } = req.params;
-    if (!id) {
-        return res.status(400).send({
-            success: false,
-            message: "Restaurant ID is required",
-            data: null,
-        });
-    }
-    try {
-        const stats = await restaurantService.getRestaurantStats(id);
-        res.status(200).send({
-            success: true,
-            message: "Statistics fetched successfully",
-            data: stats,
-        });
-    }
-    catch (error) {
-        res.status(500).send({
-            success: false,
-            message: "Failed to fetch restaurant statistics",
-            error: error.message || error,
-        });
-    }
-};
 export const restaurantController = {
     getAllRestaurant,
     getRestaurantById,
     getRestaurantMeals,
     getRestaurantReviews,
-    updateRestaurant,
-    getRestaurantStats,
 };
 //# sourceMappingURL=restaurant.controller.js.map

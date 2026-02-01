@@ -61,7 +61,7 @@ export function useData() {
       setIsLoading(true);
 
       // Fetch categories
-      const categoryResult = await api.get<Category[]>("/api/categories");
+      const categoryResult = await api.get<Category[]>("/api/cat/categorys");
       if (categoryResult.success && categoryResult.data) {
         setCategory(categoryResult.data);
       }

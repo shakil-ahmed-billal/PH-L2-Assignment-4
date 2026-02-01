@@ -4,7 +4,5 @@ export declare const restaurantController: {
     getRestaurantById: (req: Request, res: Response) => Promise<Response<any, Record<string, any>> | undefined>;
     getRestaurantMeals: (req: Request, res: Response) => Promise<Response<any, Record<string, any>> | undefined>;
     getRestaurantReviews: (req: Request, res: Response) => Promise<Response<any, Record<string, any>> | undefined>;
-    updateRestaurant: (req: Request, res: Response) => Promise<Response<any, Record<string, any>> | undefined>;
-    getRestaurantStats: (req: Request, res: Response) => Promise<Response<any, Record<string, any>> | undefined>;
 };
 //# sourceMappingURL=restaurant.controller.d.ts.map
