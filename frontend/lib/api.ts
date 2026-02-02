@@ -1,4 +1,3 @@
-import axios from "axios";
 import getCookies from "@/constants/getCookies";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
@@ -29,24 +28,24 @@ class ApiClient {
     endpoint: string,
     options: any = {}
   ): Promise<ApiResponse<T>> {
-    const cookies = await getCookies(); 
+    const cookies = await getCookies();
     console.log(cookies);
 
     try {
       const response = await fetch(`${this.baseUrl}${endpoint}`, {
         ...options,
-        credentials: 'include', 
+        credentials: "include",
         headers: {
           "Content-Type": "application/json",
           ...(cookies && { Cookie: cookies }),
-          ...options.headers, 
+          ...options.headers,
         },
-        // withCredentials: true, 
+        // withCredentials: true,
       });
 
       return response.json();
     } catch (error) {
-      if(error instanceof Error) {
+      if (error instanceof Error) {
         return {
           success: false,
           error: { message: error.message },
