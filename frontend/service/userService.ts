@@ -1,7 +1,8 @@
 
 import { cookies } from "next/headers";
 
-const AUTH_URL = process.env.NEXT_PUBLIC_API_URL;
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+
 
 export const userService = {
   getSession: async function () {
@@ -11,7 +12,7 @@ export const userService = {
       console.log(cookieStore.toString());
      
 
-      const res = await fetch(`${AUTH_URL}/api/auth/get-session`, {
+      const res = await fetch(`${API_URL}/api/auth/get-session`, {
         headers: {
           Cookie: cookieStore.toString(),
         },

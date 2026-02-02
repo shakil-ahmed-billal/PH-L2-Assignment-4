@@ -4,6 +4,7 @@ import { cookies } from "next/headers";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
+
 export interface ApiResponse<T> {
   success: boolean;
   data?: T;
@@ -43,6 +44,8 @@ class ApiClient {
           ...options.headers,
         },
       });
+
+      console.log(`${this.baseUrl}${endpoint}`)
 
       let data: ApiResponse<T>;
       const contentType = response.headers.get("content-type");
