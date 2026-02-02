@@ -33,25 +33,29 @@ class ApiClient {
     console.log(cookies);
 
     try {
-      const response = await axios({
-        url: `${this.baseUrl}${endpoint}`,
-        method: options.method || "GET",
-        data: options.body, 
+      const response = await fetch(`${this.baseUrl}${endpoint}`, {
+        ...options,
+        credentials: 'include', 
         headers: {
           "Content-Type": "application/json",
           ...(cookies && { Cookie: cookies }),
           ...options.headers, 
         },
-        withCredentials: true, 
+        // withCredentials: true, 
       });
 
-      return response.data;
+      return response.json();
     } catch (error) {
-      if (axios.isAxiosError(error)) {
-        throw new Error(error.response?.data?.error?.message || "An error occurred");
-      } else {
-        throw new Error("Network error occurred");
+      if(error instanceof Error) {
+        return {
+          success: false,
+          error: { message: error.message },
+        };
       }
+      return {
+        success: false,
+        error: { message: "An error occurred" },
+      };
     }
   }
 
