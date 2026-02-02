@@ -3389,10 +3389,10 @@ var reviewController = {
 
 // src/modules/review/review.routes.ts
 var router8 = Router8();
-router8.get("/:customerId", reviewController.getCustomerOrders);
-router8.post("/:orderId/review", reviewController.addOrderReview);
-router8.patch("/:orderId/review/:reviewId", reviewController.updateOrderReview);
-router8.delete("/:orderId/review/:reviewId", reviewController.deleteOrderReview);
+router8.get("/:customerId", auth_default("CUSTOMER" /* CUSTOMER */), reviewController.getCustomerOrders);
+router8.post("/:orderId/review", auth_default("CUSTOMER" /* CUSTOMER */), reviewController.addOrderReview);
+router8.patch("/:orderId/review/:reviewId", auth_default("CUSTOMER" /* CUSTOMER */), reviewController.updateOrderReview);
+router8.delete("/:orderId/review/:reviewId", auth_default("CUSTOMER" /* CUSTOMER */), reviewController.deleteOrderReview);
 var reviewRouter = router8;
 
 // src/router.ts
