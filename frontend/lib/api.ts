@@ -1,5 +1,4 @@
-
-
+import { ApiResponse } from './api';
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 export interface ApiResponse<T> {
@@ -33,14 +32,15 @@ class ApiClient {
     try {
       const response = await fetch(`${this.baseUrl}${endpoint}`, {
         ...options,
+        credentials: 'include', 
         headers: {
           "Content-Type": "application/json",
-          ...(token && { Authorization: `Bearer ${token}` }),
+          ...(token && { Authorization: token }),
           ...options.headers,
         },
       });
 
-      let data: any;
+      let data: ApiResponse<T>;
       const contentType = response.headers.get("content-type");
       
       if (contentType && contentType.includes("application/json")) {
