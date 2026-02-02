@@ -1,3 +1,7 @@
+"use server";
+
+import { cookies } from "next/headers";
+
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 export interface ApiResponse<T> {
@@ -26,7 +30,8 @@ class ApiClient {
     endpoint: string,
     options: RequestInit = {}
   ): Promise<ApiResponse<T>> {
-    const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+
+    const cookieStore = await cookies()
 
     try {
       const response = await fetch(`${this.baseUrl}${endpoint}`, {
@@ -34,7 +39,7 @@ class ApiClient {
         credentials: 'include', 
         headers: {
           "Content-Type": "application/json",
-          ...(token && { Authorization: token }),
+          ...(cookieStore.toString() && { Cookie: cookieStore.toString() }),
           ...options.headers,
         },
       });

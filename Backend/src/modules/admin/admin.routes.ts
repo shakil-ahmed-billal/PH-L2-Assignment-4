@@ -1,25 +1,25 @@
 import { Router } from "express";
 import { adminController } from "./admin.Controller";
-
+import auth, { UserRole } from "../../middlewares/auth";
 const router: Router = Router();
 
 // Dashboard
-router.get('/dashboard', adminController.getDashboardStats);
+router.get('/dashboard', auth(UserRole.ADMIN), adminController.getDashboardStats);
 
 // Users
-router.get('/users', adminController.getAllUsers);
-router.put('/users/:userId/status', adminController.updateUserStatus);
+router.get('/users', auth(UserRole.ADMIN), adminController.getAllUsers);
+router.put('/users/:userId/status', auth(UserRole.ADMIN), adminController.updateUserStatus);
 
 // Orders
-router.get('/orders', adminController.getAllOrders);
+router.get('/orders', auth(UserRole.ADMIN), adminController.getAllOrders);
 
 // Categories
-router.get('/categories', adminController.getAllCategories);
-router.post('/categories', adminController.createCategory);
-router.put('/categories/:categoryId', adminController.updateCategory);
-router.delete('/categories/:categoryId', adminController.deleteCategory);
+router.get('/categories', auth(UserRole.ADMIN), adminController.getAllCategories);
+router.post('/categories', auth(UserRole.ADMIN), adminController.createCategory);
+router.put('/categories/:categoryId', auth(UserRole.ADMIN), adminController.updateCategory);
+router.delete('/categories/:categoryId', auth(UserRole.ADMIN), adminController.deleteCategory);
 
 // Meals
-router.get('/meals', adminController.getAllMeals);
+router.get('/meals', auth(UserRole.ADMIN), adminController.getAllMeals);
 
 export const adminRouter = router;
