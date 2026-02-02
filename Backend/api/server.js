@@ -103,6 +103,13 @@ var auth = betterAuth({
   },
   emailAndPassword: {
     enabled: true
+  },
+  advanced: {
+    defaultCookieAttributes: {
+      sameSite: "none",
+      secure: true,
+      httpOnly: true
+    }
   }
 });
 
@@ -336,10 +343,44 @@ var orderController = {
   getOrderById
 };
 
+// src/middlewares/auth.ts
+var auth2 = (...roles) => {
+  return async (req, res, next) => {
+    try {
+      const session = await auth.api.getSession({
+        headers: req.headers
+      });
+      if (!session) {
+        return res.status(401).json({
+          success: false,
+          message: "You are not authorized!"
+        });
+      }
+      req.user = {
+        id: session.user.id,
+        email: session.user.email,
+        name: session.user.name,
+        role: session.user.role
+      };
+      console.log(session);
+      if (roles.length && !roles.includes(req.user.role)) {
+        return res.status(403).json({
+          success: false,
+          message: "Forbidden! You don't have permission to access this resources!"
+        });
+      }
+      next();
+    } catch (err) {
+      next(err);
+    }
+  };
+};
+var auth_default = auth2;
+
 // src/modules/order/order.routes.ts
 var router3 = Router3();
-router3.get("/:id", orderController.getOrderById);
-router3.post("/", orderController.createNewOrder);
+router3.get("/:id", auth_default("CUSTOMER" /* CUSTOMER */), orderController.getOrderById);
+router3.post("/", auth_default("CUSTOMER" /* CUSTOMER */), orderController.createNewOrder);
 var orderRouter = router3;
 
 // src/modules/provider/provider.routes.ts
@@ -1276,40 +1317,6 @@ var providerController = {
   deleteMeal: deleteMeal2
 };
 
-// src/middlewares/auth.ts
-var auth2 = (...roles) => {
-  return async (req, res, next) => {
-    try {
-      const session = await auth.api.getSession({
-        headers: req.headers
-      });
-      if (!session) {
-        return res.status(401).json({
-          success: false,
-          message: "You are not authorized!"
-        });
-      }
-      req.user = {
-        id: session.user.id,
-        email: session.user.email,
-        name: session.user.name,
-        role: session.user.role
-      };
-      console.log(session);
-      if (roles.length && !roles.includes(req.user.role)) {
-        return res.status(403).json({
-          success: false,
-          message: "Forbidden! You don't have permission to access this resources!"
-        });
-      }
-      next();
-    } catch (err) {
-      next(err);
-    }
-  };
-};
-var auth_default = auth2;
-
 // src/modules/provider/provider.routes.ts
 var router4 = Router4();
 router4.get("/stats/:id", auth_default("PROVIDER" /* PROVIDER */), providerController.getProviderStats);
@@ -1919,15 +1926,15 @@ var adminController = {
 
 // src/modules/admin/admin.routes.ts
 var router5 = Router5();
-router5.get("/dashboard", adminController.getDashboardStats);
-router5.get("/users", adminController.getAllUsers);
-router5.put("/users/:userId/status", adminController.updateUserStatus);
-router5.get("/orders", adminController.getAllOrders);
-router5.get("/categories", adminController.getAllCategories);
-router5.post("/categories", adminController.createCategory);
-router5.put("/categories/:categoryId", adminController.updateCategory);
-router5.delete("/categories/:categoryId", adminController.deleteCategory);
-router5.get("/meals", adminController.getAllMeals);
+router5.get("/dashboard", auth_default("ADMIN" /* ADMIN */), adminController.getDashboardStats);
+router5.get("/users", auth_default("ADMIN" /* ADMIN */), adminController.getAllUsers);
+router5.put("/users/:userId/status", auth_default("ADMIN" /* ADMIN */), adminController.updateUserStatus);
+router5.get("/orders", auth_default("ADMIN" /* ADMIN */), adminController.getAllOrders);
+router5.get("/categories", auth_default("ADMIN" /* ADMIN */), adminController.getAllCategories);
+router5.post("/categories", auth_default("ADMIN" /* ADMIN */), adminController.createCategory);
+router5.put("/categories/:categoryId", auth_default("ADMIN" /* ADMIN */), adminController.updateCategory);
+router5.delete("/categories/:categoryId", auth_default("ADMIN" /* ADMIN */), adminController.deleteCategory);
+router5.get("/meals", auth_default("ADMIN" /* ADMIN */), adminController.getAllMeals);
 var adminRouter = router5;
 
 // src/modules/restaurant/restaurant.routes.ts
