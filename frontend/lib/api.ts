@@ -1,3 +1,4 @@
+import axios from "axios";
 import getCookies from "@/constants/getCookies";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
@@ -26,42 +27,31 @@ class ApiClient {
 
   private async request<T>(
     endpoint: string,
-    options: RequestInit = {}
+    options: any = {}
   ): Promise<ApiResponse<T>> {
+    const cookies = await getCookies(); 
+    console.log(cookies);
 
-    const cookies = await getCookies()
-    console.log(cookies)
     try {
-      const response = await fetch(`${this.baseUrl}${endpoint}`, {
-        ...options,
-        credentials: 'include', 
+      const response = await axios({
+        url: `${this.baseUrl}${endpoint}`,
+        method: options.method || "GET",
+        data: options.body, 
         headers: {
           "Content-Type": "application/json",
           ...(cookies && { Cookie: cookies }),
-          ...options.headers,
+          ...options.headers, 
         },
+        withCredentials: true, 
       });
 
-      let data: ApiResponse<T>;
-      const contentType = response.headers.get("content-type");
-      
-      if (contentType && contentType.includes("application/json")) {
-        data = await response.json();
-      } else {
-        const text = await response.text();
-        throw new Error(text || "An error occurred");
-      }
-
-      if (!response.ok) {
-        throw new Error(data.error?.message || data.message || "An error occurred");
-      }
-
-      return data;
+      return response.data;
     } catch (error) {
-      if (error instanceof Error) {
-        throw error;
+      if (axios.isAxiosError(error)) {
+        throw new Error(error.response?.data?.error?.message || "An error occurred");
+      } else {
+        throw new Error("Network error occurred");
       }
-      throw new Error("Network error occurred");
     }
   }
 
