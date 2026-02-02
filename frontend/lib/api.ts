@@ -1,9 +1,6 @@
-"use server";
-
-import { cookies } from "next/headers";
+import getCookies from "@/constants/getCookies";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-
 
 export interface ApiResponse<T> {
   success: boolean;
@@ -32,20 +29,18 @@ class ApiClient {
     options: RequestInit = {}
   ): Promise<ApiResponse<T>> {
 
-    const cookieStore = await cookies()
-
+    const cookies = await getCookies()
+    console.log(cookies)
     try {
       const response = await fetch(`${this.baseUrl}${endpoint}`, {
         ...options,
         credentials: 'include', 
         headers: {
           "Content-Type": "application/json",
-          ...(cookieStore.toString() && { Cookie: cookieStore.toString() }),
+          ...(cookies && { Cookie: cookies }),
           ...options.headers,
         },
       });
-
-      console.log(`${this.baseUrl}${endpoint}`)
 
       let data: ApiResponse<T>;
       const contentType = response.headers.get("content-type");
