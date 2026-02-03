@@ -15,10 +15,30 @@ dotenv.config();
 
 const app:Application = express();
 
-app.use(cors({
-    origin: envConfig.CLIENT_URL || "http://localhost:3000",
-    credentials: true
-}))
+
+const allowedOrigins = [
+  process.env.APP_URL || "http://localhost:3000",
+  process.env.PROD_APP_URL, // Production frontend URL
+].filter(Boolean);
+
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true); 
+      const isAllowed = allowedOrigins.includes(origin)
+      if (isAllowed) {
+        callback(null, true);
+      } else {
+        callback(new Error(`Origin ${origin} not allowed by CORS`));
+      }
+    },
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization", "Cookie"],
+    exposedHeaders: ["Set-Cookie"],
+  })
+);
+
 app.use(express.json());
 app.use(morgan("dev"))
 app.use("/api" , router)

@@ -104,12 +104,19 @@ var auth = betterAuth({
   emailAndPassword: {
     enabled: true
   },
-  advanced: {
-    defaultCookieAttributes: {
-      sameSite: "none",
-      secure: true,
-      httpOnly: true
+  session: {
+    cookieCache: {
+      enabled: true,
+      maxAge: 5 * 60
     }
+  },
+  advanced: {
+    cookiePrefix: "better-auth",
+    useSecureCookies: process.env.NODE_ENV === "production",
+    crossSubDomainCookies: {
+      enabled: false
+    },
+    disableCSRFCheck: true
   }
 });
 
@@ -3407,25 +3414,31 @@ router9.use("/restaurant", restaurantRouter);
 router9.use("/review", reviewRouter);
 var router_default = router9;
 
-// src/config/envConfig.ts
-var envConfig = {
-  NODE_ENV: process.env.NODE_ENV || "development",
-  PORT: process.env.PORT || 5e3,
-  DATABASE_URL: process.env.DATABASE_URL || "mongodb://localhost:27017/myapp",
-  JWT_SECRET: process.env.JWT_SECRET || "your_jwt_secret",
-  JWT_EXPIRES_IN: process.env.JWT_EXPIRES_IN || "1h",
-  CLIENT_URL: process.env.CLIENT_URL || "http://localhost:3000",
-  SERVER_URL: process.env.BETTER_AUTH_URL || "http://localhost:8000"
-};
-var envConfig_default = envConfig;
-
 // src/app.ts
 dotenv.config();
 var app = express();
-app.use(cors({
-  origin: envConfig_default.CLIENT_URL || "http://localhost:3000",
-  credentials: true
-}));
+var allowedOrigins = [
+  process.env.APP_URL || "http://localhost:3000",
+  process.env.PROD_APP_URL
+  // Production frontend URL
+].filter(Boolean);
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true);
+      const isAllowed = allowedOrigins.includes(origin);
+      if (isAllowed) {
+        callback(null, true);
+      } else {
+        callback(new Error(`Origin ${origin} not allowed by CORS`));
+      }
+    },
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization", "Cookie"],
+    exposedHeaders: ["Set-Cookie"]
+  })
+);
 app.use(express.json());
 app.use(morgan("dev"));
 app.use("/api", router_default);
@@ -3457,6 +3470,18 @@ app.get("/", (req, res) => {
   });
 });
 var app_default = app;
+
+// src/config/envConfig.ts
+var envConfig = {
+  NODE_ENV: process.env.NODE_ENV || "development",
+  PORT: process.env.PORT || 5e3,
+  DATABASE_URL: process.env.DATABASE_URL || "mongodb://localhost:27017/myapp",
+  JWT_SECRET: process.env.JWT_SECRET || "your_jwt_secret",
+  JWT_EXPIRES_IN: process.env.JWT_EXPIRES_IN || "1h",
+  CLIENT_URL: process.env.CLIENT_URL || "http://localhost:3000",
+  SERVER_URL: process.env.BETTER_AUTH_URL || "http://localhost:8000"
+};
+var envConfig_default = envConfig;
 
 // src/server.ts
 app_default.listen(envConfig_default.PORT, () => {
