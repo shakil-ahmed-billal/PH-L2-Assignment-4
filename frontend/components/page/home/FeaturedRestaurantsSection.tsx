@@ -1,12 +1,43 @@
 import ProviderCard from "@/components/card/ProviderCard";
 import { Button } from "@/components/ui/button";
-import { providers } from "@/lib/mockData";
-import { ArrowRight } from "lucide-react";
+import { api } from "@/lib/api";
+import { Provider } from "@/lib/mockData";
+// import { providers } from "@/lib/mockData";
+import { ArrowRight, Slice } from "lucide-react";
 import Link from "next/link";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 const FeaturedRestaurantsSection = () => {
     
-  const featuredProviders = providers.slice(0, 3);
+  const [allRestaurant, setAllRestaurant] = useState<Provider[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  console.log(allRestaurant)
+  const restaurant = allRestaurant.slice(0, 6)
+
+  useEffect(() => {
+    fetchRestaurant();
+  }, []);
+
+  const fetchRestaurant = async () => {
+    try {
+      setIsLoading(true);
+      const result = await api.get("/api/restaurant");
+      
+      if (result.success) {
+        setAllRestaurant(result.data as Provider[]);
+      } else {
+        toast.error("Failed to load meals");
+      }
+    } catch (error) {
+      console.error("Error fetching meals:", error);
+      toast.error("An error occurred while loading meals");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
 
   return (
     <section className="py-16 md:py-20 bg-muted/30">
@@ -29,7 +60,7 @@ const FeaturedRestaurantsSection = () => {
         </div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {featuredProviders.map((provider) => (
+          {restaurant.map((provider) => (
             <ProviderCard key={provider.id} provider={provider} />
           ))}
         </div>
