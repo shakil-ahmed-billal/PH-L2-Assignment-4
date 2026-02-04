@@ -15,7 +15,6 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { authClient } from "@/lib/authClient";
 import { useForm } from "@tanstack/react-form";
 import { toast } from "sonner";
 import * as z from "zod";
@@ -55,14 +54,14 @@ export function RegisterForm({ ...props }: React.ComponentProps<typeof Card>) {
       onSubmit: formSchema,
     },
     onSubmit: async ({ value }) => {
-      const toastId = toast.loading("Creating user");
+      const toastId = toast.loading("Creating Customer");
       try {
         console.log(value);
         const { data, error } = await signUp({
           name: value.name,
           email: value.email,
           password: value.password,
-          role: value.userType.toUpperCase() as "PROVIDER" | "USER",
+          role: value.userType.toUpperCase() as "PROVIDER" | "CUSTOMER",
         });
 
         console.log(data);

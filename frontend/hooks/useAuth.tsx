@@ -25,7 +25,7 @@ interface SignUpData {
   name: string;
   email: string;
   password: string;
-  role?: "USER" | "PROVIDER";
+  role?: "CUSTOMER" | "PROVIDER";
 }
 
 
@@ -200,7 +200,7 @@ export function useAuth() {
   const handleGoogleLogin = async () => {
     await authClient.signIn.social({
       provider: "google",
-      callbackURL: "http://localhost:3000",
+      // callbackURL: process.env.NEXT_PUBLIC_APP_URL
     });
   };
 

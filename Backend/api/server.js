@@ -87,7 +87,7 @@ var auth = betterAuth({
     additionalFields: {
       role: {
         type: "string",
-        defaultValue: "USER",
+        defaultValue: "CUSTOMER",
         required: false
       },
       phone: {
@@ -108,6 +108,14 @@ var auth = betterAuth({
     cookieCache: {
       enabled: true,
       maxAge: 5 * 60
+    }
+  },
+  socialProviders: {
+    google: {
+      prompt: "select_account consent",
+      accessType: "offline",
+      clientId: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET
     }
   },
   advanced: {
