@@ -21,6 +21,7 @@ import * as z from "zod";
 import { Eye, EyeOff, User, Mail, Phone, Lock, Store } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
+import { useRouter } from "next/navigation";
 
 const formSchema = z.object({
   userType: z.enum(["customer", "provider"], {
@@ -40,6 +41,7 @@ export function RegisterForm({ ...props }: React.ComponentProps<typeof Card>) {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const { signUp } = useAuth();
+  const router = useRouter()
 
   const form = useForm({
     defaultValues: {
@@ -71,6 +73,7 @@ export function RegisterForm({ ...props }: React.ComponentProps<typeof Card>) {
         }
 
         toast.success("User Created Successfully", { id: toastId });
+        router.push("/")
       } catch (err) {
         toast.error("Something went wrong, please try again.", { id: toastId });
       }
